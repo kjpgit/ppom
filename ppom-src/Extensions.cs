@@ -6,16 +6,24 @@ using System.Threading;
 
 namespace ppom
 {
-    class Extensions
+    public class Extensions
     {
-        public static IEnumerable<(int, T)> Enumerate<T>(IEnumerable<T> input)
+        /// <summary>
+        /// Yield (index, value) for all items in input.
+        /// By default, the index starts at 0.  
+        /// </summary>
+        public static IEnumerable<(int, T)> Enumerate<T>(
+            IEnumerable<T> input, int start = 0)
         {
-            int i = 0;
+            int i = start;
             foreach (var t in input) {
                 yield return (i++, t);
             }
         }
 
+        /// <summary>
+        /// Return the number of digits to the right of the decimal point (may be 0)
+        /// </summary>
         public static int GetDecimalPlaces(decimal d)
         {
             var s = d.ToString();

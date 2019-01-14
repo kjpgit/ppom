@@ -14,11 +14,7 @@ namespace ppom
 
         static void Main(string[] args)
         {
-            Console.WriteLine(Extensions.GetDecimalPlaces(123m));
-            Console.WriteLine(Extensions.GetDecimalPlaces(123.0m));
-            Console.WriteLine(Extensions.GetDecimalPlaces(123.00m));
-    
-            //GoogleSheets.LoadSheet(SPREADSHEET_ID, STOREDATA);
+            GoogleSheets.LoadSheet(SPREADSHEET_ID, STOREDATA);
             var storeData = new StoreData(STOREDATA);
         }
     }

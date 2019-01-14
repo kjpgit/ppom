@@ -42,6 +42,10 @@ namespace ppom
         static string[] Scopes = { SheetsService.Scope.SpreadsheetsReadonly };
         static string ApplicationName = "Google Sheets API .NET Quickstart";
 
+        /// <summary>
+        /// Download and process a Google Docs Spreadsheet, and write it to a
+        /// small and simple JSON file.
+        /// </summary>
         static public void LoadSheet(String spreadsheetId, String filePath)
         {
             UserCredential credential;
@@ -139,6 +143,33 @@ namespace ppom
 
                 if (product.ContainsKey("id")) {
                     ((JArray)root_obj["products"]).Add(product);
+                }
+            }
+
+            // Categories
+            s = get_sheet(spreadsheet, "Categories");
+            header = new SpreadSheetHeader(s);
+            root_obj["categories"] = new JArray();
+
+            foreach (var row in s.Data[0].RowData.Skip(1)) {
+
+                var category = new JObject();
+                if (row.Values == null)
+                    continue;
+
+                foreach (var (i, v) in Enumerate(row.Values))
+                {
+                    String column_name = header.GetColumnName(i);
+                    String column_value = v.FormattedValue;
+                    if (!String.IsNullOrWhiteSpace(column_name) &&
+                        !String.IsNullOrWhiteSpace(column_value))
+                    {
+                        category[column_name] = column_value.Trim();
+                    }
+                }
+
+                if (category.ContainsKey("id")) {
+                    ((JArray)root_obj["categories"]).Add(category);
                 }
             }
 

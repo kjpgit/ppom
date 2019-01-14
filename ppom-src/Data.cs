@@ -72,6 +72,13 @@ namespace ppom
     }
 
 
+    public class Category 
+    {
+
+    }
+
+
+
     public class Product
     {
         public Product(JObject obj, OptionDatabase db)
