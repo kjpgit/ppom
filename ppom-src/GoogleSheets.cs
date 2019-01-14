@@ -13,9 +13,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
-using static spreadsheet_dl.Extensions;
+using static ppom.Extensions;
 
-namespace spreadsheet_dl
+namespace ppom
 {
     class SpreadSheetHeader
     {
