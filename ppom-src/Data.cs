@@ -10,11 +10,15 @@ using Newtonsoft.Json;
 
 namespace ppom
 {
+    /// <summary>
+    /// A readonly list of options (e.g. dropdown list)
+    /// </summary>
     public class OptionList
     {
         public OptionList(String name, IList<String> values)
         {
             Trace.Assert(!String.IsNullOrWhiteSpace(name), "No option name");
+            Trace.Assert(values.Any(), "Empty option values");
             foreach (var value in values) {
                 Trace.Assert(!String.IsNullOrWhiteSpace(value), "No option value");
             }
@@ -30,17 +34,22 @@ namespace ppom
     }
 
 
-    public class OptionDatabase
+    /// <summary>
+    /// Readonly map of String (name) -> OptionList
+    /// </summary>
+    public class OptionDB
     {
-        public OptionDatabase(JArray options)
+        public OptionDB(JArray options)
         {
             this.options = new Dictionary<String, OptionList>();
 
             foreach (var obj in options) {
                 var option = new OptionList(
-                    (String)obj["title"], 
-                    obj["values"].ToObject<IList<String>>());
-                this.options[option.Name] = option;
+                    name: (String)obj["title"], 
+                    values: obj["values"].ToObject<IList<String>>()
+                    );
+                // Will throw exception if already exists
+                this.options.Add(option.Name, option);
                 Debug.WriteLine($"Loaded optionlist {option.Name}");
             }
         }
@@ -54,6 +63,11 @@ namespace ppom
     }
 
 
+    /// <summary>
+    /// An option to be displayed to the user.
+    /// Contains a Label, and optionally a list of choices (OptionList).
+    /// If OptionList is null, it is a free-text option.
+    /// </summary>
     public class ProductOption {
         public ProductOption(String label, OptionList optionList)
         {
@@ -63,8 +77,6 @@ namespace ppom
         }
 
         public String Label => label;
-
-        // If null, this is a free text entry
         public OptionList OptionList => optionList;
 
         private String label;
@@ -72,16 +84,64 @@ namespace ppom
     }
 
 
+    /// <summary>
+    /// Category information (readonly)
+    /// </summary>
     public class Category 
     {
+        public Category(String Id, String Name, String Picture) {
+            Trace.Assert(!String.IsNullOrWhiteSpace(Id));
+            Trace.Assert(!String.IsNullOrWhiteSpace(Name));
+            Trace.Assert(!String.IsNullOrWhiteSpace(Picture));
 
+            id = Id;
+            name = Name;
+            picture = Picture;
+        }
+
+        public String Id => id;
+        public String Name => name;
+        public String Picture => picture;
+
+        private String name;
+        private String id;
+        private String picture;
+    }
+
+
+    /// <summary>
+    /// Readonly map of String (id) -> Category
+    /// </summary>
+    public class CategoryDB {
+        public CategoryDB(JArray arr) {
+            this.categories = new Dictionary<String, Category>();
+
+            foreach (var obj in arr) {
+                var category = new Category(
+                    Id: (String)obj["id"], 
+                    Name: (String)obj["name"], 
+                    Picture: (String)obj["picture"]
+                    );
+
+                // Will throw exception if already exists
+                this.categories.Add(category.Id, category);
+                Debug.WriteLine($"Loaded category {category.Id}");
+            }
+        }
+
+        public Category GetCategory(String id)
+        {
+            return categories[id];
+        }
+
+        private Dictionary<String, Category> categories;
     }
 
 
 
     public class Product
     {
-        public Product(JObject obj, OptionDatabase db)
+        public Product(JObject obj, OptionDB db)
         {
             this.id = (string)obj["id"];
             this.name = (string)obj["name"];
@@ -132,20 +192,23 @@ namespace ppom
         {
             JObject root = JObject.Parse(File.ReadAllText(jsonPath));
 
-            this.optionDatabase = new OptionDatabase((JArray)root["options"]);
+            this.optionDB = new OptionDB((JArray)root["options"]);
+            this.categoryDB = new CategoryDB((JArray)root["categories"]);
             this.products = new List<Product>();
 
             foreach (var obj in root["products"]) {
-                var product = new Product((JObject)obj, optionDatabase);
+                var product = new Product((JObject)obj, optionDB);
                 products.Add(product);
                 Debug.WriteLine($"Loaded product {product.Id}");
             }
         }
 
-        public OptionDatabase Options => optionDatabase;
+        public OptionDB Options => optionDB;
+        public CategoryDB Categories => categoryDB;
         public IList<Product> Products => products.AsReadOnly();
 
-        private OptionDatabase optionDatabase;
+        private OptionDB optionDB;
+        private CategoryDB categoryDB;
         private List<Product> products;
     }
 
