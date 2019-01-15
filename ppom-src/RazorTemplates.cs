@@ -1,225 +1,111 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
+using System.Reflection;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Razor.Hosting;
 using Microsoft.AspNetCore.Razor.Language;
 using Microsoft.AspNetCore.Razor.Language.Extensions;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
-namespace RazorPageGenerator
+namespace ppom
 {
-    public class RazorPageGeneratorResult
+    public class RazorEngine
     {
-        public string FilePath { get; set; }
+        public RazorEngine(String templateDir) {
+            this.cache = new Dictionary<String, Assembly>();
 
-        public string GeneratedCode { get; set; }
+            // points to the local path
+            fs = RazorProjectFileSystem.Create(templateDir);
+
+            // customize the default engine a little bit
+            engine = RazorProjectEngine.Create(RazorConfiguration.Default, fs, (builder) =>
+            {
+                InheritsDirective.Register(builder);
+                builder.SetNamespace("MyRazorNamespace"); 
+            });
+        }
+
+        private RazorProjectFileSystem fs;
+        private RazorProjectEngine engine;
+        private Dictionary<String, Assembly> cache;
+
+        public void LoadTemplate(String filename)
+        {
+            var item = fs.GetItem(filename);
+            var codeDocument = engine.Process(item);
+            var cs = codeDocument.GetCSharpDocument();
+
+            // now, use roslyn, parse the C# code
+            var tree = CSharpSyntaxTree.ParseText(cs.GeneratedCode);
+
+            string assemblyName = "razor_" + filename;
+            var compilation = CSharpCompilation.Create(assemblyName, new[] { tree },
+                new[]
+                {
+                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location), // include corlib
+                    MetadataReference.CreateFromFile(typeof(RazorCompiledItemAttribute).Assembly.Location), // include Microsoft.AspNetCore.Razor.Runtime
+                    MetadataReference.CreateFromFile(Assembly.GetExecutingAssembly().Location), // this file (that contains the MyTemplate base class)
+
+                    // for some reason on .NET core, I need to add this... this is not needed with .NET framework
+                    MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location), "System.Runtime.dll")),
+
+                    // as found out by @Isantipov, for some other reason on .NET Core for Mac and Linux, we need to add this... this is not needed with .NET framework
+                    MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location), "netstandard.dll"))
+                },
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+                ); 
+
+            // compile the dll
+            string path = Path.Combine(Path.GetFullPath("templates/dlls"), filename + ".dll");
+            var result = compilation.Emit(path);
+            if (!result.Success) {
+                Console.WriteLine(string.Join(Environment.NewLine, result.Diagnostics));
+                throw new Exception("compile failed");
+            }
+
+            // load the built dll
+            Console.WriteLine(path);
+            var assembly = Assembly.LoadFile(path);
+            this.cache[filename] = assembly;
+        }
+
+        public MyTemplate CreateTemplate(String filename) 
+        {
+            var assembly = this.cache[filename];
+            // the generated type is defined in our custom namespace, as we
+            // asked. "Template" is the type name that razor uses by default.
+            var template = (MyTemplate)Activator.CreateInstance(assembly.GetType("MyRazorNamespace.Template"));
+            return template;
+        }
     }
 
-    public class Program
+
+    // the sample base template class. It's not mandatory but I think it's much easier.
+    public abstract class MyTemplate
     {
-        public static int Main(string[] args)
-        {
-            if (args == null || args.Length < 1)
-            {
-                Console.WriteLine("Invalid argument(s).");
-                Console.WriteLine(@"Usage:   
-    dotnet razorpagegenerator <root-namespace-of-views> [path]
-Examples: 
-    dotnet razorpagegenerator Microsoft.AspNetCore.Diagnostics.RazorViews
-        - processes all views in ""Views"" subfolders of the current directory
-    dotnet razorpagegenerator Microsoft.AspNetCore.Diagnostics.RazorViews c:\project
-        - processes all views in ""Views"" subfolders of c:\project directory
-");
+        public String Name = "Suzy Orman";
 
-                return 1;
-            }
-
-            var rootNamespace = args[0];
-            var targetProjectDirectory = args.Length > 1 ? args[1] : Directory.GetCurrentDirectory();
-            var projectEngine = CreateProjectEngine(rootNamespace, targetProjectDirectory);
-            var results = MainCore(projectEngine, targetProjectDirectory);
-
-            foreach (var result in results)
-            {
-                File.WriteAllText(result.FilePath, result.GeneratedCode);
-            }
-
-            Console.WriteLine();
-            Console.WriteLine($"{results.Count} files successfully generated.");
-            Console.WriteLine();
-            return 0;
+        public void run() {
+            this.ExecuteAsync().Wait();
         }
 
-        public static RazorProjectEngine CreateProjectEngine(string rootNamespace, string targetProjectDirectory, Action<RazorProjectEngineBuilder> configure = null)
+        public void WriteLiteral(string literal)
         {
-            var fileSystem = RazorProjectFileSystem.Create(targetProjectDirectory);
-            var projectEngine = RazorProjectEngine.Create(RazorConfiguration.Default, fileSystem, builder =>
-            {
-                builder
-                    .SetNamespace(rootNamespace)
-                    .SetBaseType("Microsoft.Extensions.RazorViews.BaseView")
-                    .ConfigureClass((document, @class) =>
-                    {
-                        @class.ClassName = Path.GetFileNameWithoutExtension(document.Source.FilePath);
-                        @class.Modifiers.Clear();
-                        @class.Modifiers.Add("internal");
-                    });
-
-                FunctionsDirective.Register(builder);
-                InheritsDirective.Register(builder);
-                SectionDirective.Register(builder);
-
-                builder.Features.Add(new SuppressChecksumOptionsFeature());
-                builder.Features.Add(new SuppressMetadataAttributesFeature());
-
-                if (configure != null)
-                {
-                    configure(builder);
-                }
-
-                builder.AddDefaultImports(@"
-@using System
-@using System.Threading.Tasks
-");
-            });
-            return projectEngine;
+            // replace that by a text writer for example
+            Console.Write($"-- {literal} --");
         }
 
-        public static IList<RazorPageGeneratorResult> MainCore(RazorProjectEngine projectEngine, string targetProjectDirectory)
+        public void Write(object obj)
         {
-            var viewDirectories = Directory.EnumerateDirectories(targetProjectDirectory, "Views", SearchOption.AllDirectories);
-            var fileCount = 0;
-
-            var results = new List<RazorPageGeneratorResult>();
-            foreach (var viewDir in viewDirectories)
-            {
-                Console.WriteLine();
-                Console.WriteLine("  Generating code files for views in {0}", viewDir);
-                var viewDirPath = viewDir.Substring(targetProjectDirectory.Length).Replace('\\', '/');
-                var cshtmlFiles = projectEngine.FileSystem.EnumerateItems(viewDirPath);
-
-                if (!cshtmlFiles.Any())
-                {
-                    Console.WriteLine("  No .cshtml files were found.");
-                    continue;
-                }
-
-                foreach (var item in cshtmlFiles)
-                {
-                    Console.WriteLine("    Generating code file for view {0}...", item.FileName);
-                    results.Add(GenerateCodeFile(projectEngine, item));
-                    Console.WriteLine("      Done!");
-                    fileCount++;
-                }
-            }
-
-            return results;
+            // replace that by a text writer for example
+            Console.Write($"-- {obj} --");
         }
 
-        private static RazorPageGeneratorResult GenerateCodeFile(RazorProjectEngine projectEngine, RazorProjectItem projectItem)
+        public async virtual Task ExecuteAsync()
         {
-            var projectItemWrapper = new FileSystemRazorProjectItemWrapper(projectItem);
-            var codeDocument = projectEngine.Process(projectItemWrapper);
-            var cSharpDocument = codeDocument.GetCSharpDocument();
-            if (cSharpDocument.Diagnostics.Any())
-            {
-                var diagnostics = string.Join(Environment.NewLine, cSharpDocument.Diagnostics);
-                Console.WriteLine($"One or more parse errors encountered. This will not prevent the generator from continuing: {Environment.NewLine}{diagnostics}.");
-            }
-
-            var generatedCodeFilePath = Path.ChangeExtension(projectItem.PhysicalPath, ".Designer.cs");
-            return new RazorPageGeneratorResult
-            {
-                FilePath = generatedCodeFilePath,
-                GeneratedCode = cSharpDocument.GeneratedCode,
-            };
-        }
-
-        private class SuppressChecksumOptionsFeature : RazorEngineFeatureBase, IConfigureRazorCodeGenerationOptionsFeature
-        {
-            public int Order { get; set; }
-
-            public void Configure(RazorCodeGenerationOptionsBuilder options)
-            {
-                if (options == null)
-                {
-                    throw new ArgumentNullException(nameof(options));
-                }
-
-                options.SuppressChecksum = true;
-            }
-        }
-
-        private class SuppressMetadataAttributesFeature : RazorEngineFeatureBase, IConfigureRazorCodeGenerationOptionsFeature
-        {
-            public int Order { get; set; }
-
-            public void Configure(RazorCodeGenerationOptionsBuilder options)
-            {
-                if (options == null)
-                {
-                    throw new ArgumentNullException(nameof(options));
-                }
-
-                options.SuppressMetadataAttributes = true;
-            }
-        }
-
-        private class FileSystemRazorProjectItemWrapper : RazorProjectItem
-        {
-            private readonly RazorProjectItem _source;
-
-            public FileSystemRazorProjectItemWrapper(RazorProjectItem item)
-            {
-                _source = item;
-            }
-
-            public override string BasePath => _source.BasePath;
-
-            public override string FilePath => _source.FilePath;
-
-            // Mask the full name since we don't want a developer's local file paths to be commited.
-            public override string PhysicalPath => _source.FileName;
-
-            public override bool Exists => _source.Exists;
-
-            public override Stream Read()
-            {
-                var processedContent = ProcessFileIncludes();
-                return new MemoryStream(Encoding.UTF8.GetBytes(processedContent));
-            }
-
-            private string ProcessFileIncludes()
-            {
-                var basePath = System.IO.Path.GetDirectoryName(_source.PhysicalPath);
-                var cshtmlContent = File.ReadAllText(_source.PhysicalPath);
-
-                var startMatch = "<%$ include: ";
-                var endMatch = " %>";
-                var startIndex = 0;
-                while (startIndex < cshtmlContent.Length)
-                {
-                    startIndex = cshtmlContent.IndexOf(startMatch, startIndex);
-                    if (startIndex == -1)
-                    {
-                        break;
-                    }
-                    var endIndex = cshtmlContent.IndexOf(endMatch, startIndex);
-                    if (endIndex == -1)
-                    {
-                        throw new InvalidOperationException($"Invalid include file format in {_source.PhysicalPath}. Usage example: <%$ include: ErrorPage.js %>");
-                    }
-                    var includeFileName = cshtmlContent.Substring(startIndex + startMatch.Length, endIndex - (startIndex + startMatch.Length));
-                    Console.WriteLine("      Inlining file {0}", includeFileName);
-                    var includeFileContent = File.ReadAllText(System.IO.Path.Combine(basePath, includeFileName));
-                    cshtmlContent = cshtmlContent.Substring(0, startIndex) + includeFileContent + cshtmlContent.Substring(endIndex + endMatch.Length);
-                    startIndex = startIndex + includeFileContent.Length;
-                }
-                return cshtmlContent;
-            }
+            await Task.Yield(); // whatever, we just need something that compiles...
         }
     }
 }

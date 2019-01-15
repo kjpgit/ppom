@@ -15,7 +15,24 @@ namespace ppom
         static void Main(string[] args)
         {
             //GoogleSheets.LoadSheet(SPREADSHEET_ID, STOREDATA);
-            var storeData = new StoreData(STOREDATA);
+            //var storeData = new StoreData(STOREDATA);
+
+            var engine = new RazorEngine("templates");
+
+            String[] templates = {"hello.cshtml", "test2.cshtml"};
+            foreach (var template in templates) {
+                engine.LoadTemplate(template);
+            }
+
+            foreach (var template in templates) {
+                var obj = engine.CreateTemplate(template);
+                obj.run();
+            }
+            foreach (var template in templates) {
+                var obj = engine.CreateTemplate(template);
+                obj.run();
+            }
+
         }
     }
 }
