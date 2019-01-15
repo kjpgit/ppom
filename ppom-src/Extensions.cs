@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Globalization;
 
 namespace ppom
 {
@@ -26,7 +27,7 @@ namespace ppom
         /// </summary>
         public static int GetDecimalPlaces(decimal d)
         {
-            var s = d.ToString();
+            var s = d.ToString(CultureInfo.InvariantCulture);
             var index = s.IndexOf(".");
             if (index < 0) {
                 return 0;

@@ -14,7 +14,7 @@ namespace ppom
 
         static void Main(string[] args)
         {
-            GoogleSheets.LoadSheet(SPREADSHEET_ID, STOREDATA);
+            //GoogleSheets.LoadSheet(SPREADSHEET_ID, STOREDATA);
             var storeData = new StoreData(STOREDATA);
         }
     }

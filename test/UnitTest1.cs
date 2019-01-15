@@ -9,13 +9,13 @@ namespace ppomtest
         [Fact]
         public void TestGetDecimalPlaces()
         {
-            Assert.Equal(Extensions.GetDecimalPlaces(0), 0);
-            Assert.Equal(Extensions.GetDecimalPlaces(0m), 0);
-            Assert.Equal(Extensions.GetDecimalPlaces(1m), 0);
-            Assert.Equal(Extensions.GetDecimalPlaces(123m), 0);
-            Assert.Equal(Extensions.GetDecimalPlaces(123.0m), 1);
-            Assert.Equal(Extensions.GetDecimalPlaces(123.00m), 2);
-            Assert.Equal(Extensions.GetDecimalPlaces(123.000m), 3);
+            Assert.Equal(0, Extensions.GetDecimalPlaces(0));
+            Assert.Equal(0, Extensions.GetDecimalPlaces(0m));
+            Assert.Equal(0, Extensions.GetDecimalPlaces(1m));
+            Assert.Equal(0, Extensions.GetDecimalPlaces(123m));
+            Assert.Equal(1, Extensions.GetDecimalPlaces(123.0m));
+            Assert.Equal(2, Extensions.GetDecimalPlaces(123.00m));
+            Assert.Equal(3, Extensions.GetDecimalPlaces(123.000m));
         }
 
         [Fact]
@@ -23,13 +23,13 @@ namespace ppomtest
         {
             string[] myList = {"Hi", "There", "World"};
             var o = Extensions.Enumerate(myList).GetEnumerator();
-            Assert.Equal(true, o.MoveNext());
+            Assert.True(o.MoveNext());
             Assert.Equal((0, "Hi"), o.Current);
-            Assert.Equal(true, o.MoveNext());
+            Assert.True(o.MoveNext());
             Assert.Equal((1, "There"), o.Current);
-            Assert.Equal(true, o.MoveNext());
+            Assert.True(o.MoveNext());
             Assert.Equal((2, "World"), o.Current);
-            Assert.Equal(false, o.MoveNext());
+            Assert.False(o.MoveNext());
         }
     }
 }
