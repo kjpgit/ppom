@@ -114,7 +114,8 @@ namespace ppom
 
 
     /// <summary>
-    /// Readonly map of String (id) -> Category
+    /// Map of String (id) -> Category
+    /// This class is immutable.
     /// </summary>
     public class CategoryDB {
         public CategoryDB(JArray arr) {
@@ -142,7 +143,10 @@ namespace ppom
     }
 
 
-
+    /// <summary>
+    /// Information for a single product listing.
+    /// This class is immutable.
+    /// </summary>
     public class Product
     {
         public Product(JObject obj, OptionDB db)
@@ -190,6 +194,11 @@ namespace ppom
         private List<ProductOption> options;
     }
 
+
+    /// <summary>
+    /// All store product data (from a spreadsheet).
+    /// This class is immutable.
+    /// </summary>
     public class StoreData
     {
         public StoreData(String jsonPath)
