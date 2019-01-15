@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
+using Mvc.RenderViewToString;
 
 namespace ppom
 {
@@ -17,6 +18,9 @@ namespace ppom
             //GoogleSheets.LoadSheet(SPREADSHEET_ID, STOREDATA);
             //var storeData = new StoreData(STOREDATA);
 
+            RazorHelper.run();
+
+            /*
             var engine = new RazorEngine("templates");
 
             String[] templates = {"hello.cshtml", "test2.cshtml"};
@@ -32,6 +36,7 @@ namespace ppom
                 var obj = engine.CreateTemplate(template);
                 obj.run();
             }
+            */
 
         }
     }
