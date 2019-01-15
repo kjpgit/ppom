@@ -44,7 +44,7 @@ namespace Mvc.RenderViewToString
             {
                 var helper = serviceScope.ServiceProvider.GetRequiredService<RazorViewToStringRenderer>();
 
-                var model = "Test Model";
+                var model = "Test &<>;'\" Model";
 
                 return helper.RenderViewToStringAsync("templates/hello.cshtml", model);
             }
@@ -81,14 +81,6 @@ namespace Mvc.RenderViewToString
             services.AddLogging();
             services.AddMvc();
             services.AddTransient<RazorViewToStringRenderer>();
-
-            services.AddMvc().AddApplicationPart(
-                typeof(object).GetTypeInfo().Assembly
-            );
-            services.AddMvc().AddApplicationPart(
-                typeof(Microsoft.AspNetCore.Razor.Hosting.RazorCompiledItem).GetTypeInfo().Assembly
-            );
-            services.AddMvc().AddApplicationPart(Assembly.GetExecutingAssembly());
         }
     }
 }
