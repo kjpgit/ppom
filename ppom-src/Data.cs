@@ -11,7 +11,8 @@ using Newtonsoft.Json;
 namespace ppom
 {
     /// <summary>
-    /// A readonly list of options (e.g. dropdown list)
+    /// A list of options (e.g. for a dropdown).
+    /// This class is immutable.
     /// </summary>
     public class OptionList
     {
@@ -35,7 +36,8 @@ namespace ppom
 
 
     /// <summary>
-    /// Readonly map of String (name) -> OptionList
+    /// Map of String (name) -> OptionList
+    /// This class is immutable.
     /// </summary>
     public class OptionDB
     {
@@ -67,6 +69,7 @@ namespace ppom
     /// An option to be displayed to the user.
     /// Contains a Label, and optionally a list of choices (OptionList).
     /// If OptionList is null, it is a free-text option.
+    /// This class is immutable.
     /// </summary>
     public class ProductOption {
         public ProductOption(String label, OptionList optionList)
@@ -85,7 +88,8 @@ namespace ppom
 
 
     /// <summary>
-    /// Category information (readonly)
+    /// Category information.
+    /// This class is immutable.
     /// </summary>
     public class Category 
     {
