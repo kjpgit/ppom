@@ -15,12 +15,12 @@
 
   <link rel="stylesheet" href="/include/xzoom.css">
 
-  <link rel="stylesheet" href="/include/main.css?cachebust=@ViewData["CacheBust"]">
+  <link rel="stylesheet" href="/include/main.css?cachebust=CACHEBUST">
 
   <link rel="stylesheet" href="/include/pswp/photoswipe.css"> 
   <link rel="stylesheet" href="/include/pswp/default-skin/default-skin.css"> 
 
-  <title>@ViewData["Title"]</title>
+  <title>@ViewBag.Title</title>
 </head>
 
 <body id="{{PAGE_ID}}">
@@ -67,7 +67,6 @@
 
 
 @RenderBody()
-
 
 
 <!-- page footer start -->

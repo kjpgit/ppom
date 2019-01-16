@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
-using Mvc.RenderViewToString;
+using RazorLight;
 
 namespace ppom
 {
@@ -17,26 +17,21 @@ namespace ppom
         {
             //GoogleSheets.LoadSheet(SPREADSHEET_ID, STOREDATA);
             //var storeData = new StoreData(STOREDATA);
+            var model = new { Firstname = "Bill", Lastname = "Gates" };
 
-            RazorHelper.run();
+            var engine = new RazorLightEngineBuilder()
+                        .UseFilesystemProject(Directory.GetCurrentDirectory() + "/templates")
+                        .UseMemoryCachingProvider()
+                        .Build();
 
-            /*
-            var engine = new RazorEngine("templates");
+            dynamic viewBag = new System.Dynamic.ExpandoObject();
+            viewBag.Title = "Page Title Karl";
 
-            String[] templates = {"hello.cshtml", "test2.cshtml"};
-            foreach (var template in templates) {
-                engine.LoadTemplate(template);
-            }
-
-            foreach (var template in templates) {
-                var obj = engine.CreateTemplate(template);
-                obj.run();
-            }
-            foreach (var template in templates) {
-                var obj = engine.CreateTemplate(template);
-                obj.run();
-            }
-            */
+            string result = engine.CompileRenderAsync(
+                "hello",
+                new { Name = "John Doe" },
+                viewBag).Result;
+            Console.WriteLine(result);
 
         }
     }
