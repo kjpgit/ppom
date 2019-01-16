@@ -1,11 +1,14 @@
-{{PAGE_HEADER}}
+@{
+    ViewBag.Title = "Override Title";
+    Layout = "layout.cshtml";
+}
 
 <nav class="breadcrumb-nav">
   <a href="/">All Products</a>
   <span class="shop-breadcrumb-separator">&gt;</span>
   <a href="{{CATEGORY_PATH}}">{{CATEGORY_NAME}}</a>
   <span class="shop-breadcrumb-separator">&gt;</span>
-  {{ITEM_NAME}}
+  @Model.Name
 </nav>
 
 <div class="row shop-listing">
@@ -124,5 +127,3 @@
 <script type="application/ld+json">
 {{BREADCRUMB_SCHEMA}}
 </script>
-
-{{PAGE_FOOTER}}

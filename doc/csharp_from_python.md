@@ -4,3 +4,5 @@ Append() seems badly named.
 empty -> Any() 
 
 Equivalent for enumerate()
+
+No generic OrderedDictionary :(

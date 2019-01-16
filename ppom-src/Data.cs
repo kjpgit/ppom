@@ -119,7 +119,9 @@ namespace ppom
     /// </summary>
     public class CategoryDB {
         public CategoryDB(JArray arr) {
+            // Would be nice if .Net had a generic OrderedDictionary :(
             this.categories = new Dictionary<String, Category>();
+            this.category_ids = new List<String>();
 
             foreach (var obj in arr) {
                 var category = new Category(
@@ -130,9 +132,16 @@ namespace ppom
 
                 // Will throw exception if already exists
                 this.categories.Add(category.Id, category);
+                this.category_ids.Add(category.Id);
                 Debug.WriteLine($"Loaded category {category.Id}");
             }
         }
+
+        /// <summary>
+        /// Return list of category ids
+        /// Preserves spreadsheet order (e.g. for front page)
+        /// </summary>
+        public IList<String> CategoryIds => category_ids.AsReadOnly();
 
         public Category GetCategory(String id)
         {
@@ -140,6 +149,7 @@ namespace ppom
         }
 
         private Dictionary<String, Category> categories;
+        private List<String> category_ids;  
     }
 
 
