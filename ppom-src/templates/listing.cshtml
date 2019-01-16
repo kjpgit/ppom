@@ -1,5 +1,6 @@
 @{
-    ViewBag.Title = "Override Title";
+    ViewBag.Title = "Patterned Pomegranate: " + Model.Name;
+    ViewBag.PageId = "listingPage";
     Layout = "layout.cshtml";
 }
 
@@ -18,11 +19,10 @@
 
   <div class="col-md-5">
     <h1>
-      {{ITEM_NAME}}
+      @Model.Name
     </h1>
 
-    <!-- NB: don't add comments below, they don't nest -->
-    {{HIDE_SERVICES_START}}
+    @if (@Model.Price > 0) {
 
       <b class="text-medium">${{ITEM_PRICE}}</b>
 
@@ -42,7 +42,7 @@
         <input type="submit" name="item-submit" value="Add to Cart" class="addCart">
       </form>
 
-    {{HIDE_SERVICES_END}}
+    }
 
     <div class="shop-listing-description">
       {{ITEM_DESCRIPTION}}

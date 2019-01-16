@@ -1,4 +1,5 @@
 using System;
+using System.Dynamic;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
@@ -42,19 +43,20 @@ namespace ppom
             foreach (Product product in storeData.Products) {
                 Directory.CreateDirectory(getOutputDir(getProductDir(product.Id)));
 
-                dynamic viewBag = new System.Dynamic.ExpandoObject();
-                viewBag.Title = "Page Title Karl";
+                dynamic viewBag = new ExpandoObject();
                 viewBag.CacheBust = "123afc";
-                viewBag.PageId = "TestPage";
 
                 var model = product;
 
                 string path = getOutputDir(getProductDir(product.Id) + "/index.html");
-                string result = engine.CompileRenderAsync("listing", model, viewBag).Result;
+                string result = runTemplate("listing", model, viewBag);
                 File.WriteAllText(path, result);
             }
         }
 
+        private String runTemplate<T>(string key, T model, ExpandoObject viewBag = null) {
+            return engine.CompileRenderAsync(key, model, viewBag).Result;
+        }
 
         private StoreData storeData;
         private String buildDirectory;
