@@ -56,12 +56,14 @@ namespace ppom
 
                 generate_listing_images(product);
 
+                string categoryId = fileData.GetProductCategoryId(product.Id);
+                string categoryName = storeData.Categories.GetCategory(categoryId).Name;
 
                 dynamic viewBag = new ExpandoObject();
                 viewBag.CacheBust = "123afc";
-                viewBag.CATEGORY_PATH = "fixme";
-                viewBag.CATEGORY_NAME = "fixme";
-                viewBag.PRODUCT_DESCRIPTION = fileData.GetProductDescriptionHTML(product.Id);
+                viewBag.CategoryId = categoryId;
+                viewBag.CategoryName = categoryName;
+                viewBag.ProductDescription = fileData.GetProductDescriptionHTML(product.Id);
                 viewBag.Images = GetImagesInfoForDisplay(product);
 
                 var model = product;
