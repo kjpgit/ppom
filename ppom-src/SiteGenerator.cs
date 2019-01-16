@@ -56,11 +56,13 @@ namespace ppom
 
                 generate_listing_images(product);
 
+
                 dynamic viewBag = new ExpandoObject();
                 viewBag.CacheBust = "123afc";
                 viewBag.CATEGORY_PATH = "fixme";
                 viewBag.CATEGORY_NAME = "fixme";
                 viewBag.PRODUCT_DESCRIPTION = fileData.GetProductDescriptionHTML(product.Id);
+                viewBag.Images = GetImagesInfoForDisplay(product);
 
                 var model = product;
 
@@ -76,8 +78,7 @@ namespace ppom
             var sourceImages = fileData.GetImagePaths(product);
 
             foreach (var srcImage in sourceImages) {
-                var info = ImageEngine.GetImageMetadata(srcImage);
-                Console.WriteLine($"img {info}");
+                Console.WriteLine($"Processing {srcImage}");
 
                 ImageEngine.ResizeImage(srcImage,
                     outputDir + "/large/" + Path.GetFileName(srcImage),
@@ -99,6 +100,24 @@ namespace ppom
                 outputDir + "/thumb/product.jpg",
                 maxWidth: 1024);
         }
+
+        public IList<ImageInfo> GetImagesInfoForDisplay(Product product)
+        {
+            var outputDir = getOutputDir(getProductDir(product.Id));
+            var ret = new List<ImageInfo>();
+            foreach (var path in fileData.GetImagePaths(product)) {
+                var largeImage = outputDir + "/large/" + Path.GetFileName(path);
+                var info = ImageEngine.GetImageMetadata(largeImage);
+                ret.Add(new ImageInfo {
+                    Path = largeImage,
+                    Width = info.width,
+                    Height = info.height
+                });
+            }
+            return ret;
+        }
+
+
 
         private String runTemplate<T>(string key, T model, ExpandoObject viewBag = null) {
             return engine.CompileRenderAsync(key, model, viewBag).Result;

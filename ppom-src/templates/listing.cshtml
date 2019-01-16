@@ -15,7 +15,28 @@
 
 <div class="row shop-listing">
   <div class="col-md-7 shop-listing-gallery">
-    {{GALLERY}}
+
+    <!-- start gallery -->
+    <div class="xzoom-container">
+      <div class="xzoom-thumbs">
+
+      @foreach (var img in @ViewBag.Images) {
+          <a href="large/@img.Name" data-width=@img.Width data-height=@img.Height><img 
+              class="xzoom-gallery" 
+              width="80" 
+              src="medium/@img.Name"></a>
+        }
+
+      </div>
+
+    <img id=listing_main_image 
+        class="xzoom img-responsive" 
+        src="medium/@ViewBag.Images[0].Name" 
+        xoriginal="large/@ViewBag.Images[0].Name">
+
+    </div>
+    <!-- end gallery -->
+
   </div>
 
   <div class="col-md-5">
@@ -135,12 +156,3 @@
     </div>
 
 </div>
-
-
-<script type="application/ld+json">
-{{PROD_SCHEMA}}
-</script>
-
-<script type="application/ld+json">
-{{BREADCRUMB_SCHEMA}}
-</script>

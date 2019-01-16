@@ -21,26 +21,27 @@ namespace ppom
 
     public class ImageInfo
     {
-        public override string ToString() => $"<ImageInfo {width}x{height}>";
-        public int width;
-        public int height;
+        public override string ToString() => $"<ImageInfo {Name}: {Width}x{Height}>";
+        public string Name => System.IO.Path.GetFileName(Path);
+        public string Path;
+        public int Width;
+        public int Height;
     }
 
     public class ImageEngine
     {
-        public static ImageInfo GetImageMetadata(String path)
+        public static (int width, int height) GetImageMetadata(String path)
         {
             using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read)) {
-                var info = SixLabors.ImageSharp.Image.Identify(stream);
-                return new ImageInfo {
-                    width = info.Width,
-                    height = info.Height
-                };
+                var info = Image.Identify(stream);
+                return (info.Width, info.Height);
             }
         }
 
         public static void ResizeImage(String srcPath, String dstPath, int maxWidth)
         {
+            if (File.Exists(dstPath))
+                return;
             using (var image = Image.Load(srcPath)) {
                 image.Mutate(x => x.Resize(width: maxWidth, height: 0));
                 image.Save(dstPath);
