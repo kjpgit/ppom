@@ -15,12 +15,12 @@
 
   <link rel="stylesheet" href="/include/xzoom.css">
 
-  <link rel="stylesheet" href="/include/main.css?cachebust={{CACHE_BUST}}">
+  <link rel="stylesheet" href="/include/main.css?cachebust=@ViewData["CacheBust"]">
 
   <link rel="stylesheet" href="/include/pswp/photoswipe.css"> 
   <link rel="stylesheet" href="/include/pswp/default-skin/default-skin.css"> 
 
-  <title>{{PAGE_TITLE}}</title>
+  <title>@ViewData["Title"]</title>
 </head>
 
 <body id="{{PAGE_ID}}">
