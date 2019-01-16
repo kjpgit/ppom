@@ -9,6 +9,17 @@ using RazorLight;
 
 namespace ppom 
 {
+    // Passed to the templates
+    public class ImageDisplayInfo
+    {
+        public override string ToString() => $"<ImageDisplayInfo {Name}: {Width}x{Height}>";
+        public string Name => System.IO.Path.GetFileName(Path);
+        public string Path;
+        public int Width;
+        public int Height;
+    }
+
+
     public class SiteGenerator
     {
         public SiteGenerator(StoreData storeData, FileData fileData) {
@@ -34,10 +45,22 @@ namespace ppom
             return this.buildDirectory + "/" + path;
         }
 
+        public String GetCacheBust() {
+            return "ABCDEFG";
+        }
+
         public void create_directories() {
             foreach (String categoryId in storeData.Categories.CategoryIds) {
                 Directory.CreateDirectory(getOutputDir(getCategoryDir(categoryId)));
             }
+        }
+
+        public void generate_categories() {
+            foreach (String categoryId in storeData.Categories.CategoryIds) {
+                Category category = storeData.Categories.GetCategory(categoryId);
+
+            }
+
         }
 
         public void generate_listings() {
@@ -60,16 +83,16 @@ namespace ppom
                 string categoryName = storeData.Categories.GetCategory(categoryId).Name;
 
                 dynamic viewBag = new ExpandoObject();
-                viewBag.CacheBust = "123afc";
+                viewBag.CacheBust = GetCacheBust();
                 viewBag.CategoryId = categoryId;
                 viewBag.CategoryName = categoryName;
                 viewBag.ProductDescription = fileData.GetProductDescriptionHTML(product.Id);
-                viewBag.Images = GetImagesInfoForDisplay(product);
+                viewBag.Images = get_images_for_display(product);
 
                 var model = product;
 
-                string path = getOutputDir(getProductDir(product.Id) + "/index.html");
                 string result = runTemplate("listing", model, viewBag);
+                string path = getOutputDir(getProductDir(product.Id) + "/index.html");
                 File.WriteAllText(path, result);
             }
         }
@@ -103,14 +126,14 @@ namespace ppom
                 maxWidth: 1024);
         }
 
-        public IList<ImageInfo> GetImagesInfoForDisplay(Product product)
+        private IList<ImageDisplayInfo> get_images_for_display(Product product)
         {
             var outputDir = getOutputDir(getProductDir(product.Id));
-            var ret = new List<ImageInfo>();
+            var ret = new List<ImageDisplayInfo>();
             foreach (var path in fileData.GetImagePaths(product)) {
                 var largeImage = outputDir + "/large/" + Path.GetFileName(path);
                 var info = ImageEngine.GetImageMetadata(largeImage);
-                ret.Add(new ImageInfo {
+                ret.Add(new ImageDisplayInfo {
                     Path = largeImage,
                     Width = info.width,
                     Height = info.height
@@ -118,8 +141,6 @@ namespace ppom
             }
             return ret;
         }
-
-
 
         private String runTemplate<T>(string key, T model, ExpandoObject viewBag = null) {
             return engine.CompileRenderAsync(key, model, viewBag).Result;

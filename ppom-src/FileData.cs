@@ -19,15 +19,6 @@ namespace ppom
         }
     }
 
-    public class ImageInfo
-    {
-        public override string ToString() => $"<ImageInfo {Name}: {Width}x{Height}>";
-        public string Name => System.IO.Path.GetFileName(Path);
-        public string Path;
-        public int Width;
-        public int Height;
-    }
-
     public class ImageEngine
     {
         public static (int width, int height) GetImageMetadata(String path)

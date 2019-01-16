@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Collections.Generic;
 using Xunit;
 using ppom;
 
@@ -30,6 +32,28 @@ namespace ppomtest
             Assert.True(o.MoveNext());
             Assert.Equal((2, "World"), o.Current);
             Assert.False(o.MoveNext());
+        }
+
+        [Fact]
+        public void TestSplitChunks()
+        {
+            int[] myList = {1, 2, 3, 4, 5};
+            var expected = new List<List<int>>();
+            expected.Add(new List<int>{ 1, 2, 3});
+            expected.Add(new List<int>{ 4, 5});
+            var actual = Extensions.SplitChunks(myList, 3).ToList();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void TestSplitChunks2()
+        {
+            int[] myList = {1, 2, 3, 4};
+            var expected = new List<List<int>>();
+            expected.Add(new List<int>{ 1, 2});
+            expected.Add(new List<int>{ 3, 4});
+            var actual = Extensions.SplitChunks(myList, 2).ToList();
+            Assert.Equal(expected, actual);
         }
     }
 }

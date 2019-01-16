@@ -1,16 +1,43 @@
-{{PAGE_HEADER}}
+@{
+    ViewBag.Title = "Patterned Pomegranate: " + Model.Name;
+    ViewBag.PageId = "categoryPage";
+    Layout = "layout.cshtml";
+}
 
 <nav class="breadcrumb-nav">
   <a href="/">All Products</a>
   <span class="shop-breadcrumb-separator">&gt;</span>
-  {{CATEGORY_NAME}}
+  @Model.Name
 </nav>
 
-<h1 class="shop-page-title">{{CATEGORY_NAME}}</h1>
-<h2 class="shop-category-subhead">{{CATEGORY_DESCRIPTION}}</h2>
+<h1 class="shop-page-title">@Model.Name</h1>
+<h2 class="shop-category-subhead">@Model.Description</h2>
 
 <div id="categoryGallery">
-{{GALLERY}}
+
+@foreach (var subCategory in Model.SubCategories) {
+
+    @foreach (var (i, listing) in Extensions.Enumerate(subCategory.Listings)) {
+      bool needs_div = ((i % 3) == 0);
+
+      @if (needs_div) {
+        <div class="row shop-category-row">
+      }
+
+        <div class="col-md-4 shop-overview-cell">
+          <a href="/shop/listing/@listing.Id/">
+
+            @if (subCategory.Name == null) {
+              <h2>@listing.Name</h2>
+            } else {
+              <h3>@listing.Name</h3>
+            }
+              <img class="shop-overview-thumb" 
+                   src="/shop/listing/@listing.Id/medium/@listing.FirstImageName">
+          </a>
+          <div class='clearfix'></div>
+        </div>
+
 </div>
 
 

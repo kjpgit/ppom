@@ -35,5 +35,17 @@ namespace ppom
                 return s.Length - index - 1;
             }
         }
+
+        /// <summary>
+        /// Splits a list into a list of smaller lists.
+        /// Useful for web templates that have rows of columns.
+        /// </summary>
+        public static IEnumerable<IEnumerable<T>> SplitChunks<T>(IEnumerable<T> input, int size)
+        {
+            int total_chunks = (input.Count() + 1) / size;
+            for (var i = 0; i < total_chunks; i++) {
+                yield return input.Skip(i * size).Take(size);
+            }
+        }
     }
 }

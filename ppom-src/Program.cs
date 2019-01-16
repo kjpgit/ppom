@@ -21,6 +21,7 @@ namespace ppom
             var generator = new SiteGenerator(storeData, fileData);
             generator.create_directories();
             generator.generate_listings();
+            generator.generate_categories();
 
         }
     }
