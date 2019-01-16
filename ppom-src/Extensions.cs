@@ -42,9 +42,10 @@ namespace ppom
         /// </summary>
         public static IEnumerable<IEnumerable<T>> SplitChunks<T>(IEnumerable<T> input, int size)
         {
-            int total_chunks = (input.Count() + 1) / size;
-            for (var i = 0; i < total_chunks; i++) {
-                yield return input.Skip(i * size).Take(size);
+            int i = 0;
+            while (i < input.Count()) {
+                yield return input.Skip(i).Take(size);
+                i += size;
             }
         }
     }

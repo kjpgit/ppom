@@ -2,6 +2,7 @@ using System;
 using System.Dynamic;
 using System.Linq;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Threading;
 
@@ -19,6 +20,24 @@ namespace ppom
         public int Height;
     }
 
+    public class CategoryProductDisplay
+    {
+        public Product Product;
+        public String FirstImageName;
+    }
+
+    public class SubCategory
+    {
+        public String Name;   // may be null
+        public List<CategoryProductDisplay> Listings;
+    }
+
+    public class CategoryModel
+    {
+        public Category Category;
+        public string Description;
+        public List<SubCategory> SubCategories;
+    }
 
     public class SiteGenerator
     {
@@ -59,8 +78,59 @@ namespace ppom
             foreach (String categoryId in storeData.Categories.CategoryIds) {
                 Category category = storeData.Categories.GetCategory(categoryId);
 
-            }
+                var subcat_map = new OrderedDictionary();
 
+                foreach (var product in storeData.Products) {
+                    if (!fileData.ProductExists(product.Id)) {
+                        Console.WriteLine($"Warning: product {product.Id} does not exist");
+                        continue;
+                    } else {
+                        Console.WriteLine($"Processing product {product.Id}");
+                    }
+
+                    var _categoryId = fileData.GetProductCategoryId(product.Id);
+                    if (_categoryId != categoryId) {
+                        continue;
+                    }
+
+                    string subcatName = product.SubCategory ?? "";
+                    if (!subcat_map.Contains(subcatName)) {
+                        subcat_map[subcatName] = new List<CategoryProductDisplay>();
+                    }
+
+                    var subcat_list = (List<CategoryProductDisplay>)subcat_map[subcatName];
+                    var images = fileData.GetImagePaths(product);
+                    var entry = new CategoryProductDisplay() {
+                        Product = product,
+                        FirstImageName = Path.GetFileName(images[0])
+                    };
+                    subcat_list.Add(entry);
+                }
+
+                var subcats = new List<SubCategory>();
+                foreach (string name in subcat_map.Keys) {
+                    var subcat = new SubCategory() {
+                        Name = name,
+                        Listings = (List<CategoryProductDisplay>)subcat_map[name]
+                    };
+                    subcats.Add(subcat);
+                }
+
+                dynamic viewBag = new ExpandoObject();
+                viewBag.CacheBust = GetCacheBust();
+
+                // Build the model
+                var model = new CategoryModel() {
+                    Category = category,
+                    Description = "fixme",
+                    SubCategories = subcats
+                };
+
+                // Call the template
+                string result = runTemplate("category", model, viewBag);
+                string path = getOutputDir(getCategoryDir(categoryId) + "/index.html");
+                File.WriteAllText(path, result);
+            }
         }
 
         public void generate_listings() {

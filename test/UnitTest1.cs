@@ -48,11 +48,21 @@ namespace ppomtest
         [Fact]
         public void TestSplitChunks2()
         {
-            int[] myList = {1, 2, 3, 4};
+            int[] myList = {1, 2, 3, 4, 5, 6};
             var expected = new List<List<int>>();
-            expected.Add(new List<int>{ 1, 2});
-            expected.Add(new List<int>{ 3, 4});
-            var actual = Extensions.SplitChunks(myList, 2).ToList();
+            expected.Add(new List<int>{ 1, 2, 3});
+            expected.Add(new List<int>{ 4, 5, 6});
+            var actual = Extensions.SplitChunks(myList, 3).ToList();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void TestSplitChunks3()
+        {
+            int[] myList = {1};
+            var expected = new List<List<int>>();
+            expected.Add(new List<int>{ 1 });
+            var actual = Extensions.SplitChunks(myList, 3).ToList();
             Assert.Equal(expected, actual);
         }
     }

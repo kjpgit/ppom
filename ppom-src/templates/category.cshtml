@@ -1,5 +1,5 @@
 @{
-    ViewBag.Title = "Patterned Pomegranate: " + Model.Name;
+    ViewBag.Title = "Patterned Pomegranate: " + Model.Category.Name;
     ViewBag.PageId = "categoryPage";
     Layout = "layout.cshtml";
 }
@@ -7,38 +7,45 @@
 <nav class="breadcrumb-nav">
   <a href="/">All Products</a>
   <span class="shop-breadcrumb-separator">&gt;</span>
-  @Model.Name
+  @Model.Category.Name
 </nav>
 
-<h1 class="shop-page-title">@Model.Name</h1>
+<h1 class="shop-page-title">@Model.Category.Name</h1>
 <h2 class="shop-category-subhead">@Model.Description</h2>
 
 <div id="categoryGallery">
 
 @foreach (var subCategory in Model.SubCategories) {
 
-    @foreach (var (i, listing) in Extensions.Enumerate(subCategory.Listings)) {
-      bool needs_div = ((i % 3) == 0);
+    @if (subCategory.Name != null) {
+      <h2>@subCategory.Name</h2>
+    }
 
-      @if (needs_div) {
-        <div class="row shop-category-row">
-      }
+    @foreach (var chunk in ppom.Extensions.SplitChunks(subCategory.Listings, 3)) {
 
-        <div class="col-md-4 shop-overview-cell">
-          <a href="/shop/listing/@listing.Id/">
+      <div class="row shop-category-row">
 
-            @if (subCategory.Name == null) {
-              <h2>@listing.Name</h2>
-            } else {
-              <h3>@listing.Name</h3>
-            }
+        @foreach (var listing in chunk) {
+
+          <div class="col-md-4 shop-overview-cell">
+            <a href="/shop/listing/@listing.Product.Id/">
+
+              @if (subCategory.Name == null) {
+                <h2>@listing.Product.Name</h2>
+              } else {
+                <h3>@listing.Product.Name</h3>
+              }
+
               <img class="shop-overview-thumb" 
-                   src="/shop/listing/@listing.Id/medium/@listing.FirstImageName">
-          </a>
-          <div class='clearfix'></div>
-        </div>
+                   src="/shop/listing/@listing.Product.Id/medium/@listing.FirstImageName">
+            </a>
+            <div class='clearfix'></div>
+          </div>
+        }
+
+      </div>
+
+    }
+}
 
 </div>
-
-
-{{PAGE_FOOTER}}
