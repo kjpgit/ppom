@@ -45,6 +45,8 @@ namespace ppom
 
                 dynamic viewBag = new ExpandoObject();
                 viewBag.CacheBust = "123afc";
+                viewBag.CATEGORY_PATH = "fixme";
+                viewBag.CATEGORY_NAME = "fixme";
 
                 var model = product;
 

@@ -1,3 +1,4 @@
+@model ppom.Product
 @{
     ViewBag.Title = "Patterned Pomegranate: " + Model.Name;
     ViewBag.PageId = "listingPage";
@@ -7,7 +8,7 @@
 <nav class="breadcrumb-nav">
   <a href="/">All Products</a>
   <span class="shop-breadcrumb-separator">&gt;</span>
-  <a href="{{CATEGORY_PATH}}">{{CATEGORY_NAME}}</a>
+  <a href="@ViewBag.CATEGORY_PATH">@ViewBag.CATEGORY_NAME</a>
   <span class="shop-breadcrumb-separator">&gt;</span>
   @Model.Name
 </nav>
@@ -24,16 +25,32 @@
 
     @if (@Model.Price > 0) {
 
-      <b class="text-medium">${{ITEM_PRICE}}</b>
+      <b class="text-medium">$@Model.Price</b>
 
       <form onsubmit="myCart.addItem(this); return false;">
-        <input type="hidden" name="item-id" value="{{ITEM_ID}}">
-        <input type="hidden" name="item-name" value="{{ITEM_NAME}}">
-        <input type="hidden" name="item-price" value="{{ITEM_PRICE}}">
-        <input type="hidden" name="item-weight" value="{{ITEM_WEIGHT}}">
-        <input type="hidden" name="item-path" value="{{ITEM_PATH}}">
+        <input type="hidden" name="item-id" value="@Model.Id">
+        <input type="hidden" name="item-name" value="@Model.Name">
+        <input type="hidden" name="item-price" value="@Model.Price">
+        <input type="hidden" name="item-weight" value="@Model.Weight">
+        <input type="hidden" name="item-path" value="/shop/listing/@Model.Id/">
 
-        {{ITEM_OPTIONS}}
+        @foreach (var (i, option) in ppom.Extensions.Enumerate(Model.Options)) {
+          <span>@option.Label:&nbsp;</span>
+          <input type="hidden" class="item-option-name-@i" value="@option.Label">
+
+          @if (option.OptionList == null) {
+            <input required type="text" 
+                maxlength=190 class="item-option-value-@i" value="">
+          } else {
+            <select required class="item-option-value-@i">
+              <option value="">Choose an Option</option>
+              @foreach (var choice in option.OptionList.Values) {
+                  <option value="@choice">@choice</option>
+              }
+            </select>
+          }
+          <br>
+        }
 
         <span class="">Quantity:&nbsp;</span>
         <input type="number" name="item-quantity" size="4" required min="1" max="999" value="1">
