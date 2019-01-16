@@ -15,7 +15,7 @@
 
   <link rel="stylesheet" href="/include/xzoom.css">
 
-  <link rel="stylesheet" href="/include/main.css?cachebust=CACHEBUST">
+  <link rel="stylesheet" href="/include/main.css?cachebust=@ViewBag.CacheBust">
 
   <link rel="stylesheet" href="/include/pswp/photoswipe.css"> 
   <link rel="stylesheet" href="/include/pswp/default-skin/default-skin.css"> 
@@ -23,7 +23,7 @@
   <title>@ViewBag.Title</title>
 </head>
 
-<body id="{{PAGE_ID}}">
+<body id="@ViewBag.PageId">
 
 <div class="container">
 
@@ -85,7 +85,7 @@
 <script src="/include/pswp/photoswipe.min.js"></script> 
 <script src="/include/pswp/photoswipe-ui-default.min.js"></script> 
 
-<script src="/include/mycart.js?cachebust={{CACHE_BUST}}"></script>
+<script src="/include/mycart.js?cachebust=@ViewBag.CacheBust"></script>
 
 <script>
 

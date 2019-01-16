@@ -26,6 +26,8 @@ namespace ppom
 
             dynamic viewBag = new System.Dynamic.ExpandoObject();
             viewBag.Title = "Page Title Karl";
+            viewBag.CacheBust = "123afc";
+            viewBag.PageId = "TestPage";
 
             string result = engine.CompileRenderAsync(
                 "hello",
