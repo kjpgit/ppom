@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Text.RegularExpressions;
 
 namespace ppom
 {
@@ -30,6 +31,19 @@ namespace ppom
             }
         }
 
+        public String ExpandMacros(String text) {
+            var r = new Regex("{{([-_a-z]+)}}");
+            while (true) {
+                Match mo = r.Match(text);
+                if (!mo.Success)
+                    break;
+                var macro_name = mo.Groups[1];
+                var macro_text = File.ReadAllText(rootPath + "/macros/" + macro_name + ".md");
+                text = text.Replace(mo.Value, macro_text);
+            }
+            return text;
+        }
+
         public bool ProductExists(String productId) {
             return productToCategoryMap.ContainsKey(productId);
         }
@@ -45,6 +59,11 @@ namespace ppom
         public string GetProductDescriptionHTML(String productId) {
             string path = GetProductFilePath(productId) + "/description.md";
             string text = File.ReadAllText(path);
+            return ProcessMarkdownWithMacros(text);
+        }
+
+        public string ProcessMarkdownWithMacros(string text) {
+            text = ExpandMacros(text);
             return MarkdownEngine.MarkdownToHtml(text);
         }
 
