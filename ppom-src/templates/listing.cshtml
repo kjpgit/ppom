@@ -1,0 +1,128 @@
+{{PAGE_HEADER}}
+
+<nav class="breadcrumb-nav">
+  <a href="/">All Products</a>
+  <span class="shop-breadcrumb-separator">&gt;</span>
+  <a href="{{CATEGORY_PATH}}">{{CATEGORY_NAME}}</a>
+  <span class="shop-breadcrumb-separator">&gt;</span>
+  {{ITEM_NAME}}
+</nav>
+
+<div class="row shop-listing">
+  <div class="col-md-7 shop-listing-gallery">
+    {{GALLERY}}
+  </div>
+
+  <div class="col-md-5">
+    <h1>
+      {{ITEM_NAME}}
+    </h1>
+
+    <!-- NB: don't add comments below, they don't nest -->
+    {{HIDE_SERVICES_START}}
+
+      <b class="text-medium">${{ITEM_PRICE}}</b>
+
+      <form onsubmit="myCart.addItem(this); return false;">
+        <input type="hidden" name="item-id" value="{{ITEM_ID}}">
+        <input type="hidden" name="item-name" value="{{ITEM_NAME}}">
+        <input type="hidden" name="item-price" value="{{ITEM_PRICE}}">
+        <input type="hidden" name="item-weight" value="{{ITEM_WEIGHT}}">
+        <input type="hidden" name="item-path" value="{{ITEM_PATH}}">
+
+        {{ITEM_OPTIONS}}
+
+        <span class="">Quantity:&nbsp;</span>
+        <input type="number" name="item-quantity" size="4" required min="1" max="999" value="1">
+        <br>
+
+        <input type="submit" name="item-submit" value="Add to Cart" class="addCart">
+      </form>
+
+    {{HIDE_SERVICES_END}}
+
+    <div class="shop-listing-description">
+      {{ITEM_DESCRIPTION}}
+    </div>
+
+  </div>
+</div>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script type="application/ld+json">
+{{PROD_SCHEMA}}
+</script>
+
+<script type="application/ld+json">
+{{BREADCRUMB_SCHEMA}}
+</script>
+
+{{PAGE_FOOTER}}
