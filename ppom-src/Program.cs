@@ -16,7 +16,9 @@ namespace ppom
             //GoogleSheets.LoadSheet(SPREADSHEET_ID, STOREDATA);
             var storeData = new StoreData(STOREDATA);
 
-            var generator = new SiteGenerator(storeData);
+            var fileData = new FileData("/home/karl/jgit/data", storeData);
+
+            var generator = new SiteGenerator(storeData, fileData);
             generator.create_directories();
             generator.generate_listings();
 

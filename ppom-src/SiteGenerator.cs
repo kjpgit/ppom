@@ -11,8 +11,9 @@ namespace ppom
 {
     public class SiteGenerator
     {
-        public SiteGenerator(StoreData storeData) {
+        public SiteGenerator(StoreData storeData, FileData fileData) {
             this.storeData = storeData;
+            this.fileData = fileData;
             this.buildDirectory = "build";
             this.engine = new RazorLightEngineBuilder()
                         .UseFilesystemProject(Directory.GetCurrentDirectory() + "/templates")
@@ -41,12 +42,20 @@ namespace ppom
 
         public void generate_listings() {
             foreach (Product product in storeData.Products) {
+                if (!fileData.ProductExists(product.Id)) {
+                    Console.WriteLine($"Warning: product {product.Id} does not exist");
+                    continue;
+                } else {
+                    Console.WriteLine($"Processing product {product.Id}");
+                }
+
                 Directory.CreateDirectory(getOutputDir(getProductDir(product.Id)));
 
                 dynamic viewBag = new ExpandoObject();
                 viewBag.CacheBust = "123afc";
                 viewBag.CATEGORY_PATH = "fixme";
                 viewBag.CATEGORY_NAME = "fixme";
+                viewBag.PRODUCT_DESCRIPTION = fileData.GetProductDescriptionHTML(product.Id);
 
                 var model = product;
 
@@ -61,6 +70,7 @@ namespace ppom
         }
 
         private StoreData storeData;
+        private FileData fileData;
         private String buildDirectory;
         private RazorLightEngine engine;
     }

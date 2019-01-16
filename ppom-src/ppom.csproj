@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Google.Apis.Sheets.v4" Version="1.37.0.1448" />
+    <PackageReference Include="markdig" Version="0.15.7" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="RazorLight" Version="2.0.0-beta1" />
   </ItemGroup>
