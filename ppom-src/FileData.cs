@@ -40,7 +40,7 @@ namespace ppom
 
         public static void ResizeImage(String srcPath, String dstPath, int maxWidth)
         {
-            String tempPath = ".resize.tmp";
+            String tempPath = ".resize.jpg";
             if (File.Exists(dstPath))
                 return;
             using (var image = Image.Load(srcPath)) {

@@ -1,0 +1,419 @@
+/* (C) Karl Pickett */
+
+@accent_color: blue;
+@accent_color: #ea118c;  // pink
+
+@accent_color2: #9a0741; // maroon
+//@accent_color2: #D6C2CC; // maroon
+//@accent_color2: #a9487f; 
+
+@accent_font_script: 'Dancing Script', cursive;
+@accent_font_serif: Georgia, serif;
+@accent_font_sans: Verdana, sans-serif;
+
+
+// Links
+a, .linkstyle {
+    color: @accent_color;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:focus, &:hover {
+        color: @accent_color;
+        text-decoration: underline;
+    }
+}
+
+
+// General Page Style
+body {
+    margin-bottom: 7em;
+
+    /* otherwise fonts are way too bold on mac */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+p, ul {
+    // 20 px is the default line height
+    margin-bottom: 20px;
+}
+p + ul {
+    margin-top: -15px;
+}
+ul {
+    list-style: none;
+    padding-left: 1.5em;
+    position: relative;
+}
+li {
+}
+ul li:before {
+    content: "\0BB";
+    color: @accent_color;
+    position: absolute;
+    left: 0.5em;
+}
+ul.NOSTYLE li:before {
+    content: "";
+}
+.text-medium {
+    font-size: 18px;
+}
+.text-large {
+    font-size: 20px;
+}
+.text-dim {
+    color: #797979;
+}
+.align-right {
+    text-align: right;
+}
+blockquote {
+    background-color: #f7f7f7;
+    font-family: @accent_font_serif;
+    font-size: 16px;
+    padding: 15px 20px 15px 38px;
+    margin: 0 0 30px 0;
+    box-shadow: 2px 2px 15px #ccc;
+    position: relative;
+}
+blockquote:before{
+  content: "\201C"; /*Unicode for Left Double Quote*/
+  
+  /*Font*/
+  font-family: Georgia, serif;
+  font-size: 50px;
+  font-weight: bold;
+  color: #d0cdcd;
+  
+  /*Positioning*/
+  position: absolute;
+  left: 5px;
+  top:-5px;
+}
+.listing-footnote {
+    background-color: #f7f7f7;
+    padding: 15px 20px;
+    margin: 0 0 30px 0;
+    box-shadow: 2px 2px 15px #ccc;
+}
+
+
+// Form Buttons
+button, input[type=button], input[type=submit], input[type=reset] {
+    color: #eee;
+    background-color: @accent_color;
+
+    font-size: 14px;
+    font-family: verdana, sans-serif;
+    text-decoration: none;
+    padding: 6px 12px;
+    border: 1px solid darken(@accent_color, 25%);
+    border-radius: 5px;
+
+    &:focus, &:hover {
+        background-color: @accent_color + #222;
+    }
+}
+.viewCart {
+    color: #eee;
+    background-color: #444;
+    &:focus, &:hover {
+        background-color: #444 + #222;
+    }
+}
+input[type=number] {
+    width: 4em;
+}
+
+select {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+input.addCart {
+    margin-top: 7px;
+}
+
+
+// Unused
+a.viewall {
+    font-size: 16px;
+    padding: 7px 15px 7px 15px;
+    background-color: #f7f7f7;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    display: inline-block;
+    margin-bottom: 20px;
+    &::after {
+        content: " \0BB";
+    }
+    &:hover {
+        background-color: #f7f7f7 - #111;
+    }
+}
+
+
+
+// Logo, navbar 
+.top_header {
+    background-color: white;
+    background-image: url('/include/headervines.jpg');
+    border-bottom: 1px solid #dcdcdc;
+    margin-left: -15px;
+    margin-right: -15px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+.top_header nav {
+}
+#top_logo {
+    width: 100%;
+}
+.navmenu {
+    float: left;  /* so it doesn't take full width */
+    padding-top: 4px;
+}
+.navmenu a {
+    color: #333;
+    text-decoration: none;
+    font-family: @accent_font_script;
+    font-size: 22px;
+    margin-right: 20px;
+
+    &:focus, &:hover {
+        .linkstyle;
+    }
+}
+.navsocial {
+    display: none;
+    float: right;
+    padding: 7px 15px 0px 15px;
+    @media (min-width: 640px) {
+        display: block;
+    }
+}
+.navsocial img {
+    // fixme: change images
+    opacity: 0.7;
+    width: 28px;
+}
+
+.navcart {
+    float: right;
+    padding-top: 3px;
+}
+
+/*  Breadcrumb nav */
+.breadcrumb-nav {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+
+/* wide page title */
+h1.shop-page-title {
+    margin-top: 20px;
+    font-family: @accent_font_script;
+    font-size: 44px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+h2.shop-category-subhead {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-family: @accent_font_serif;
+    font-weight: normal;
+    font-size: 16px;
+    text-align: center;
+}
+
+
+// Main Page
+#frontPage h1 {
+    margin-top: 30px;
+    font-family: @accent_font_script;
+    font-size: 44px;
+    text-align: center;
+}
+#frontPage h2 {
+    font-family: @accent_font_sans;
+    xxfont-weight: normal;
+    font-size: 26px;
+    text-align: center;
+}
+#frontPage .article p {
+    line-height: 125%;
+    font-size: 16px;
+    font-family: @accent_font_serif;
+}
+#frontPage .front-img {
+    max-width: 100%;
+    margin-bottom: 20px;
+}
+
+.article {
+    xxborder: 1px dashed blue;
+}
+
+
+// Category page
+// subcategory
+#categoryGallery > h2 {  
+    margin-top: 0;
+    font-size: 20px;
+    color: gray;
+    border-bottom: 1px solid gray;
+}
+// the product name
+#categoryPage .shop-category-row h2,
+#categoryPage .shop-category-row h3 {
+    margin-top: 0;
+    font-size: 20px;
+}
+img.shop-overview-thumb {
+    xxfloat: left;
+    xxmargin-right: 10px;
+    border: 1px solid gray;
+    max-width: 100%;
+}
+.shop-overview-cell {
+    padding-top: 20px;
+    padding-bottom: 30px;
+}
+
+
+// Listing (product detail page)
+#listingPage h1 {
+    margin-top: 0;
+    font-family: @accent_font_serif;
+}
+div.shop-listing-gallery {
+    margin-bottom: 20px;
+}
+div.shop-listing-description {
+    margin-top: 2em;
+}
+div.shop-listing-description hr {
+    border: none;
+    border-top: 1px dashed @accent_color;
+}
+div.shop-listing-description h3,
+div.shop-listing-description h2
+{
+    font-family: @accent_font_script;
+    font-size: 22px;
+}
+img.xzoom-gallery {
+    max-height: 100px;
+}
+
+
+/* shopping cart */
+#cartWrapper {
+    border-style: solid;
+    border-color: gray;
+    border-width: 6px 3px 6px 3px;
+    margin-left: -12px;
+    margin-right: -12px;
+    padding: 10px;
+    @media (min-width: 1200px) {
+        border: 10px solid gray;
+        padding: 15px;
+    }
+}
+#cartItems .cart-detail {
+    margin: 0;
+}
+#cartItems .cart-option {
+    font-weight: bold;
+    font-size: 16px;
+}
+#cartItems img {
+    float: left;
+    max-width: 25%;
+    border: 1px solid gray;
+    margin-right: 10px;
+}
+#cartItems hr {
+    border-top: 2px solid gray;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+#cartCheckout p {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    xborder: 1px dashed blue;
+    text-align: right;
+}
+
+
+/* about page */
+#aboutPage .bio-caption {
+    font-size: 20px;
+    font-family: @accent_font_serif;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+#aboutPage h2 {
+    font-family: @accent_font_script;
+    font-size: 28px;
+    text-align: center;
+    padding: 10px;
+    border-bottom: 2px dotted @accent_color;
+    margin-bottom: 17px;
+}
+#aboutPage h3 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: @accent_color;
+}
+
+
+/* Blog pages */
+#blogPage .blog-post img {
+    float: right;
+    xbox-shadow: 2px 2px 15px #ccc;
+    margin-left: 10px;
+    margin-bottom: 10px;
+    max-width: 50%;
+}
+#blogPage .blog-post {
+    xxxborder: 1px dotted blue;
+}
+#blogPage h1.shop-page-title {
+    font-size: 45px;
+    padding-top: 20px;
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+}
+#blogPage h2 {
+    font-family: @accent_font_serif;
+}
+#blogPage h3 {
+    font-family: @accent_font_sans;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: @accent_color;
+}
+#blogPage h4,
+#blogPage h5,
+#blogPage h6 {
+    color: green;
+    background-color: yellow;
+}
+#blogPage .sidebar-etsy {
+    text-align: center;
+}
+#blogPage .sidebar-etsy h2 a {
+    color: #333;
+}
+
+
+// mail chimp fix
+#mc_embed_signup h2 {
+    padding-right: 1.5em !important;
+}

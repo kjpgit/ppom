@@ -14,7 +14,7 @@ namespace ppom
         public SiteGenerator(StoreData storeData, FileData fileData) {
             this.storeData = storeData;
             this.fileData = fileData;
-            this.buildDirectory = "build";
+            this.buildDirectory = "/tmp/build";
             this.engine = new RazorLightEngineBuilder()
                         .UseFilesystemProject(Directory.GetCurrentDirectory() + "/templates")
                         .UseMemoryCachingProvider()
