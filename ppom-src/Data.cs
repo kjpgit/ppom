@@ -167,6 +167,7 @@ namespace ppom
             this.price = Decimal.Parse((string)obj["price"]);
             this.weight = Decimal.Parse((string)obj["weight"]);
             this.options = new List<ProductOption>();
+            this.extraImages = new List<String>();
 
             Trace.Assert(this.price >= 0);
             Trace.Assert(this.weight >= 0);
@@ -187,6 +188,12 @@ namespace ppom
                     options.Add(new ProductOption(label, ol));
                 }
             }
+
+            string images = (string)obj["extra_images"];
+            if (images != null) {
+                var split_images = images.Split(null);
+                this.extraImages.AddRange(split_images);
+            }
         }
 
         public String Id => id;
@@ -195,6 +202,7 @@ namespace ppom
         public Decimal Price => price;
         public Decimal Weight => weight;
         public IList<ProductOption> Options => options.AsReadOnly();
+        public IList<String> ExtraImages => extraImages.AsReadOnly();
 
         private String id;
         private String name;
@@ -202,6 +210,7 @@ namespace ppom
         private Decimal price;
         private Decimal weight;
         private List<ProductOption> options;
+        private List<String> extraImages;
     }
 
 

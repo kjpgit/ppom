@@ -1,9 +1,14 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Text.RegularExpressions;
+
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+
 
 namespace ppom
 {
@@ -14,6 +19,39 @@ namespace ppom
         }
     }
 
+    public class ImageInfo
+    {
+        public override string ToString() => $"<ImageInfo {width}x{height}>";
+        public int width;
+        public int height;
+    }
+
+    public class ImageEngine
+    {
+        public static ImageInfo GetImageMetadata(String path)
+        {
+            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read)) {
+                var info = SixLabors.ImageSharp.Image.Identify(stream);
+                return new ImageInfo {
+                    width = info.Width,
+                    height = info.Height
+                };
+            }
+        }
+
+        public static void ResizeImage(String srcPath, String dstPath, int maxWidth)
+        {
+            using (var image = Image.Load(srcPath)) {
+                image.Mutate(x => x.Resize(width: maxWidth, height: 0));
+                image.Save(dstPath);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Contains product data stored on the filesystem.
+    /// (Markdown files, macros, images)
+    /// </summary>
     public class FileData
     {
         public FileData(String rootPath, StoreData storeData) {
@@ -52,14 +90,46 @@ namespace ppom
             return productToCategoryMap[productId];
         }
 
-        public string GetProductFilePath(String productId) {
+        public string GetProductDirectory(String productId) {
             return rootPath + "/" + GetProductCategoryId(productId) + "/" + productId;
         }
 
         public string GetProductDescriptionHTML(String productId) {
-            string path = GetProductFilePath(productId) + "/description.md";
+            string path = GetProductDirectory(productId) + "/description.md";
             string text = File.ReadAllText(path);
             return ProcessMarkdownWithMacros(text);
+        }
+
+        public IList<String> GetImagePaths(Product product)
+        {
+            // Main images - sorted by filename
+            var ret = new List<String>();
+            string productDir = GetProductDirectory(product.Id);
+            foreach (var file in Directory.GetFiles(productDir)) {
+                if (IsImageFile(file)) {
+                    ret.Add(file);
+                }
+            }
+            ret.Sort();
+
+            // Extra images - sorted by spreadsheet
+            foreach (var file in product.ExtraImages) {
+                Trace.Assert(IsImageFile(file));
+                string path = rootPath + "/macros/images/" + file;
+                ret.Add(path);
+            }
+
+            return ret;
+        }
+
+        public static bool IsImageFile(String path)
+        {
+            path = path.ToLower();
+            if (path.EndsWith(".jpg"))
+                return true;
+            //if (path.EndsWith(".png"))
+             //   return true;
+            return false;
         }
 
         public string ProcessMarkdownWithMacros(string text) {

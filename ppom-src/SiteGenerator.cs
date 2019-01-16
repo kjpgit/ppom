@@ -50,6 +50,11 @@ namespace ppom
                 }
 
                 Directory.CreateDirectory(getOutputDir(getProductDir(product.Id)));
+                Directory.CreateDirectory(getOutputDir(getProductDir(product.Id) + "/large"));
+                Directory.CreateDirectory(getOutputDir(getProductDir(product.Id) + "/medium"));
+                Directory.CreateDirectory(getOutputDir(getProductDir(product.Id) + "/thumb"));
+
+                generate_listing_images(product);
 
                 dynamic viewBag = new ExpandoObject();
                 viewBag.CacheBust = "123afc";
@@ -63,6 +68,36 @@ namespace ppom
                 string result = runTemplate("listing", model, viewBag);
                 File.WriteAllText(path, result);
             }
+        }
+
+        private void generate_listing_images(Product product)
+        {
+            var outputDir = getOutputDir(getProductDir(product.Id));
+            var sourceImages = fileData.GetImagePaths(product);
+
+            foreach (var srcImage in sourceImages) {
+                var info = ImageEngine.GetImageMetadata(srcImage);
+                Console.WriteLine($"img {info}");
+
+                ImageEngine.ResizeImage(srcImage,
+                    outputDir + "/large/" + Path.GetFileName(srcImage),
+                    maxWidth: 1024);
+
+                ImageEngine.ResizeImage(srcImage,
+                    outputDir + "/medium/" + Path.GetFileName(srcImage),
+                    maxWidth: 640);
+            }
+
+            // Main product image
+            var mainImage = sourceImages[0];
+
+            ImageEngine.ResizeImage(mainImage,
+                outputDir + "/thumb/thumb.jpg",
+                maxWidth: 200);
+
+            ImageEngine.ResizeImage(mainImage,
+                outputDir + "/thumb/product.jpg",
+                maxWidth: 1024);
         }
 
         private String runTemplate<T>(string key, T model, ExpandoObject viewBag = null) {

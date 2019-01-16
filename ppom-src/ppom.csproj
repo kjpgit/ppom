@@ -13,6 +13,7 @@
     <PackageReference Include="markdig" Version="0.15.7" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="RazorLight" Version="2.0.0-beta1" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0005" />
   </ItemGroup>
 
 </Project>
