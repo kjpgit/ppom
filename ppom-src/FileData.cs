@@ -95,6 +95,12 @@ namespace ppom
             return ProcessMarkdownWithMacros(text);
         }
 
+        public string GetMarkdownHTML(String logicalPath) {
+            string path = rootPath + "/" + logicalPath;
+            string text = File.ReadAllText(path);
+            return ProcessMarkdownWithMacros(text);
+        }
+
         public IList<String> GetImagePaths(Product product)
         {
             // Main images - sorted by filename

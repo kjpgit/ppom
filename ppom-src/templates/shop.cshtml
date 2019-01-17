@@ -7,7 +7,7 @@
 <div class="row">
   <div class="col-md-8 col-md-offset-2 article">
     <h1 class=".text-center">Modern, Simple, Beautiful</h1>
-    @Raw(ViewBag.FileData.ReadMarkdown("front/opening.md"))
+    @Raw(ViewBag.FileData.GetMarkdownHTML("front/opening.md"))
   </div>
 </div>
 
@@ -21,7 +21,7 @@
     <div class="col-md-6 article">
         <a href="/shop/@category.Id/">
           <h2>@category.Name</h2>
-          <img class="front-img" src="/shop/@category.Id/medium/@category.FrontImage">
+          <img class="front-img" src="@category.Picture">
         </a>
         <div class='clearfix'></div>
     </div>

@@ -67,6 +67,15 @@ namespace ppom
             }
         }
 
+        public void generate_front_page() {
+            dynamic viewBag = GetViewBag();
+            viewBag.FileData = fileData;
+            var model = storeData;
+            string result = runTemplate("shop", model, viewBag);
+            string path = getOutputDir("index.html");
+            File.WriteAllText(path, result);
+        }
+
         public void generate_categories() {
             foreach (var category in storeData.Categories) {
                 Console.WriteLine($"Processing category {category.Id}");
@@ -96,8 +105,7 @@ namespace ppom
                     subcats.Add(subcat);
                 }
 
-                dynamic viewBag = new ExpandoObject();
-                viewBag.CacheBust = GetCacheBust();
+                dynamic viewBag = GetViewBag();
 
                 // Build the model
                 var model = new CategoryModel() {
@@ -121,8 +129,7 @@ namespace ppom
 
                 generate_listing_images(product);
 
-                dynamic viewBag = new ExpandoObject();
-                viewBag.CacheBust = GetCacheBust();
+                dynamic viewBag = GetViewBag();
                 viewBag.Images = get_images_for_display(product);
 
                 var model = product;
@@ -180,6 +187,12 @@ namespace ppom
 
         private String runTemplate<T>(string key, T model, ExpandoObject viewBag = null) {
             return engine.CompileRenderAsync(key, model, viewBag).Result;
+        }
+
+        private ExpandoObject GetViewBag() {
+            dynamic viewBag = new ExpandoObject();
+            viewBag.CacheBust = GetCacheBust();
+            return viewBag;
         }
 
         private StoreData storeData;
