@@ -1,13 +1,35 @@
-{{PAGE_HEADER}}
+@{
+    ViewBag.Title = "Patterned Pomegranate: Handmade Products";
+    ViewBag.PageId = "frontPage";
+    Layout = "layout.cshtml";
+}
 
 <div class="row">
   <div class="col-md-8 col-md-offset-2 article">
     <h1 class=".text-center">Modern, Simple, Beautiful</h1>
-    {{main}}
+    @Raw(ViewBag.FileData.ReadMarkdown("front/opening.md"))
   </div>
 </div>
 
-{{sections}}
+
+@foreach (var chunk in ppom.Extensions.SplitChunks(Model.Categories, 2)) {
+
+<div class="row">
+
+  @foreach (var category in chunk) {
+
+    <div class="col-md-6 article">
+        <a href="/shop/@category.Id/">
+          <h2>@category.Name</h2>
+          <img class="front-img" src="/shop/@category.Id/medium/@category.FrontImage">
+        </a>
+        <div class='clearfix'></div>
+    </div>
+
+  }
+
+</div>
+
+}
 
 
-{{PAGE_FOOTER}}

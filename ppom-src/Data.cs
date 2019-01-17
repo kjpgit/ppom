@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Threading;
 
@@ -117,47 +118,6 @@ namespace ppom
 
 
     /// <summary>
-    /// Map of String (id) -> Category
-    /// This class is immutable.
-    /// </summary>
-    public class CategoryDB {
-        public CategoryDB(JArray arr, FileData fileData) {
-            // Would be nice if .Net had a generic OrderedDictionary :(
-            this.categories = new Dictionary<String, Category>();
-            this.category_ids = new List<String>();
-
-            foreach (var obj in arr) {
-                var category = new Category(
-                    Id: (String)obj["id"], 
-                    Name: (String)obj["name"], 
-                    Picture: (String)obj["picture"],
-                    Description: fileData.GetCategoryDescriptionHTML((String)obj["id"])
-                    );
-
-                // Will throw exception if already exists
-                this.categories.Add(category.Id, category);
-                this.category_ids.Add(category.Id);
-                Debug.WriteLine($"Loaded category {category.Id}");
-            }
-        }
-
-        /// <summary>
-        /// Return list of category ids
-        /// Preserves spreadsheet order (e.g. for front page)
-        /// </summary>
-        public IList<String> CategoryIds => category_ids.AsReadOnly();
-
-        public Category GetCategory(String id)
-        {
-            return categories[id];
-        }
-
-        private Dictionary<String, Category> categories;
-        private List<String> category_ids;  
-    }
-
-
-    /// <summary>
     /// Information for a single product listing.
     /// This class is immutable.
     /// </summary>
@@ -249,16 +209,29 @@ namespace ppom
             JObject root = JObject.Parse(File.ReadAllText(jsonPath));
 
             this.optionDB = new OptionDB((JArray)root["options"]);
-            this.categoryDB = new CategoryDB((JArray)root["categories"], fileData);
+            this.categories = new OrderedDictionary();
             this.products = new List<Product>();
             this.fileData = fileData;
 
+            foreach (var obj in root["categories"]) {
+                var category = new Category(
+                    Id: (String)obj["id"], 
+                    Name: (String)obj["name"], 
+                    Picture: (String)obj["picture"],
+                    Description: fileData.GetCategoryDescriptionHTML((String)obj["id"])
+                    );
+
+                // Will throw exception if already exists
+                this.categories.Add(category.Id, category);
+                Debug.WriteLine($"Loaded category {category.Id}");
+            }
+
             // category_id is not in the spreadsheet.  Figure it out from the filesystem.
             var productToCategoryMap = new Dictionary<String, String>();
-            foreach (var categoryId in Categories.CategoryIds) {
-                foreach (var productId in fileData.GetProductIdsForCategory(categoryId)) {
-                    Console.WriteLine($"product {productId} -> {categoryId}");
-                    productToCategoryMap[productId] = categoryId;
+            foreach (var category in this.Categories) {
+                foreach (var productId in fileData.GetProductIdsForCategory(category.Id)) {
+                    Console.WriteLine($"product {productId} -> {category.Id}");
+                    productToCategoryMap[productId] = category.Id;
                 }
             }
 
@@ -267,7 +240,7 @@ namespace ppom
                 if (!productToCategoryMap.ContainsKey(productId)) {
                     Console.WriteLine($"Warning: {productId} not in folder");
                 } else {
-                    var category = Categories.GetCategory(productToCategoryMap[productId]);
+                    var category = GetCategoryById(productToCategoryMap[productId]);
                     var productDir = fileData.GetProductDirectory(category.Id, productId);
                     var description = fileData.GetProductDescriptionHTML(productDir);
                     var product = new Product(productId, (JObject)obj, optionDB,
@@ -279,11 +252,22 @@ namespace ppom
         }
 
         public OptionDB Options => optionDB;
-        public CategoryDB Categories => categoryDB;
+
+        public Category GetCategoryById(string categoryId) {
+            return (Category)categories[categoryId];
+        }
+
+        public List<Category> Categories {
+            get {
+                return (from category in categories.Values.Cast<Category>()
+                        select category).ToList();
+            }
+        }
+
         public IList<Product> Products => products.AsReadOnly();
 
         private OptionDB optionDB;
-        private CategoryDB categoryDB;
+        private OrderedDictionary categories;
         private List<Product> products;
         private FileData fileData;
     }

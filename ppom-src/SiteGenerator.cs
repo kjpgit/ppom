@@ -62,20 +62,19 @@ namespace ppom
         }
 
         public void create_directories() {
-            foreach (String categoryId in storeData.Categories.CategoryIds) {
-                Directory.CreateDirectory(getOutputDir(getCategoryDir(categoryId)));
+            foreach (var category in storeData.Categories) {
+                Directory.CreateDirectory(getOutputDir(getCategoryDir(category.Id)));
             }
         }
 
         public void generate_categories() {
-            foreach (String categoryId in storeData.Categories.CategoryIds) {
-                Category category = storeData.Categories.GetCategory(categoryId);
+            foreach (var category in storeData.Categories) {
                 Console.WriteLine($"Processing category {category.Id}");
 
                 var subcat_map = new OrderedDictionary();
 
                 foreach (var product in storeData.Products) {
-                    if (product.Category.Id != categoryId) {
+                    if (product.Category.Id != category.Id) {
                         continue;
                     }
 
@@ -108,7 +107,7 @@ namespace ppom
 
                 // Call the template
                 string result = runTemplate("category", model, viewBag);
-                string path = getOutputDir(getCategoryDir(categoryId) + "/index.html");
+                string path = getOutputDir(getCategoryDir(category.Id) + "/index.html");
                 File.WriteAllText(path, result);
             }
         }
