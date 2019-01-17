@@ -89,7 +89,7 @@ namespace ppom
         public string GetCategoryDescriptionHTML(String categoryId) {
             string path = rootPath + "/" + categoryId + "/description.md";
             if (!File.Exists(path)) {
-                return "";
+                return null;
             }
             string text = File.ReadAllText(path);
             return ProcessMarkdownWithMacros(text);

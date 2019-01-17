@@ -97,7 +97,6 @@ namespace ppom
             Trace.Assert(!String.IsNullOrWhiteSpace(Id));
             Trace.Assert(!String.IsNullOrWhiteSpace(Name));
             Trace.Assert(!String.IsNullOrWhiteSpace(Picture));
-            Trace.Assert(Description != null);
 
             id = Id;
             name = Name;
@@ -108,7 +107,7 @@ namespace ppom
         public String Id => id;
         public String Name => name;
         public String Picture => picture;
-        public String Description => description;
+        public String Description => description; // may be null
 
         private String name;
         private String id;
