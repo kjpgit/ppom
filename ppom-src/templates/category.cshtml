@@ -13,7 +13,7 @@
 <h1 class="shop-page-title">@Model.Category.Name</h1>
 
 @if (Model.Category.Description != null) {
-  <div class="shop-category-description">@Raw(Model.Category.Description)</div>
+  <div class="category-description">@Raw(Model.Category.Description)</div>
 }
 
 <div id="categoryGallery">
@@ -21,7 +21,7 @@
 @foreach (var subCategory in Model.SubCategories) {
 
     @if (subCategory.Name != null) {
-      <h2>@subCategory.Name</h2>
+      <h2 class="subcategory-header">@subCategory.Name</h2>
     }
 
     @foreach (var chunk in ppom.Extensions.SplitChunks(subCategory.Listings, 3)) {
@@ -30,16 +30,16 @@
 
         @foreach (var product in chunk) {
 
-          <div class="col-md-4 shop-overview-cell">
+          <div class="col-md-4 product-cell">
             <a href="/shop/listing/@product.Id/">
 
               @if (subCategory.Name == null) {
-                <h2>@product.Name</h2>
+                <h2 class="product-header">@product.Name</h2>
               } else {
-                <h3>@product.Name</h3>
+                <h3 class="product-header">@product.Name</h3>
               }
 
-              <img class="shop-overview-thumb" 
+              <img class="product-image" 
                    src="/shop/listing/@product.Id/medium/@product.ImageNames[0]">
             </a>
             <div class='clearfix'></div>
