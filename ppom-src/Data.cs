@@ -165,7 +165,7 @@ namespace ppom
     public class Product
     {
         public Product(String id, JObject obj, OptionDB db, Category category,
-            String description)
+                FileData fileData, String sourceDir)
         {
             this.id = id;
             this.name = (string)obj["name"];
@@ -175,7 +175,9 @@ namespace ppom
             this.options = new List<ProductOption>();
             this.extraImages = new List<String>();
             this.category = category;
-            this.description = description;
+            this.sourceDir = sourceDir;
+            this.description = fileData.GetProductDescriptionHTML(sourceDir);
+            this.fileData = fileData;
 
             Trace.Assert(this.price >= 0);
             Trace.Assert(this.weight >= 0);
@@ -216,10 +218,19 @@ namespace ppom
         public IList<ProductOption> Options => options.AsReadOnly();
         public IList<String> ExtraImages => extraImages.AsReadOnly();
 
+        public IList<String> ImageNames {
+            get {
+                return (from path in fileData.GetImagePaths(this)
+                        select Path.GetFileName(path)).ToList();
+            }
+        } 
+
         private String id;
         private String name;
         private String subcategory;
         private String description;
+        private String sourceDir;
+        private FileData fileData;
         private Category category;
         private Decimal price;
         private Decimal weight;
@@ -261,7 +272,7 @@ namespace ppom
                     var productDir = fileData.GetProductDirectory(category.Id, productId);
                     var description = fileData.GetProductDescriptionHTML(productDir);
                     var product = new Product(productId, (JObject)obj, optionDB,
-                        category, description);
+                        category, fileData, productDir);
                     products.Add(product);
                     Debug.WriteLine($"Loaded product {product.Id}");
                 }

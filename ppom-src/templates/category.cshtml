@@ -29,19 +29,19 @@
 
       <div class="row shop-category-row">
 
-        @foreach (var listing in chunk) {
+        @foreach (var product in chunk) {
 
           <div class="col-md-4 shop-overview-cell">
-            <a href="/shop/listing/@listing.Product.Id/">
+            <a href="/shop/listing/@product.Id/">
 
               @if (subCategory.Name == null) {
-                <h2>@listing.Product.Name</h2>
+                <h2>@product.Name</h2>
               } else {
-                <h3>@listing.Product.Name</h3>
+                <h3>@product.Name</h3>
               }
 
               <img class="shop-overview-thumb" 
-                   src="/shop/listing/@listing.Product.Id/medium/@listing.FirstImageName">
+                   src="/shop/listing/@product.Id/medium/@product.ImageNames[0]">
             </a>
             <div class='clearfix'></div>
           </div>

@@ -20,16 +20,10 @@ namespace ppom
         public int Height;
     }
 
-    public class CategoryProductDisplay
-    {
-        public Product Product;
-        public String FirstImageName;
-    }
-
     public class SubCategory
     {
         public String Name;   // may be null
-        public List<CategoryProductDisplay> Listings;
+        public List<Product> Listings;
     }
 
     public class CategoryModel
@@ -87,23 +81,18 @@ namespace ppom
 
                     string subcatName = product.SubCategory ?? "";
                     if (!subcat_map.Contains(subcatName)) {
-                        subcat_map[subcatName] = new List<CategoryProductDisplay>();
+                        subcat_map[subcatName] = new List<Product>();
                     }
 
-                    var subcat_list = (List<CategoryProductDisplay>)subcat_map[subcatName];
-                    var images = fileData.GetImagePaths(product);
-                    var entry = new CategoryProductDisplay() {
-                        Product = product,
-                        FirstImageName = Path.GetFileName(images[0])
-                    };
-                    subcat_list.Add(entry);
+                    var subcat_list = (List<Product>)subcat_map[subcatName];
+                    subcat_list.Add(product);
                 }
 
                 var subcats = new List<SubCategory>();
                 foreach (string name in subcat_map.Keys) {
                     var subcat = new SubCategory() {
                         Name = name,
-                        Listings = (List<CategoryProductDisplay>)subcat_map[name]
+                        Listings = (List<Product>)subcat_map[name]
                     };
                     subcats.Add(subcat);
                 }
