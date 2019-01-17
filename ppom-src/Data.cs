@@ -93,23 +93,27 @@ namespace ppom
     /// </summary>
     public class Category 
     {
-        public Category(String Id, String Name, String Picture) {
+        public Category(String Id, String Name, String Description, String Picture) {
             Trace.Assert(!String.IsNullOrWhiteSpace(Id));
             Trace.Assert(!String.IsNullOrWhiteSpace(Name));
             Trace.Assert(!String.IsNullOrWhiteSpace(Picture));
+            Trace.Assert(Description != null);
 
             id = Id;
             name = Name;
             picture = Picture;
+            description = Description;
         }
 
         public String Id => id;
         public String Name => name;
         public String Picture => picture;
+        public String Description => description;
 
         private String name;
         private String id;
         private String picture;
+        private String description;
     }
 
 
@@ -118,7 +122,7 @@ namespace ppom
     /// This class is immutable.
     /// </summary>
     public class CategoryDB {
-        public CategoryDB(JArray arr) {
+        public CategoryDB(JArray arr, FileData fileData) {
             // Would be nice if .Net had a generic OrderedDictionary :(
             this.categories = new Dictionary<String, Category>();
             this.category_ids = new List<String>();
@@ -127,7 +131,8 @@ namespace ppom
                 var category = new Category(
                     Id: (String)obj["id"], 
                     Name: (String)obj["name"], 
-                    Picture: (String)obj["picture"]
+                    Picture: (String)obj["picture"],
+                    Description: fileData.GetCategoryDescriptionHTML((String)obj["id"])
                     );
 
                 // Will throw exception if already exists
@@ -159,15 +164,18 @@ namespace ppom
     /// </summary>
     public class Product
     {
-        public Product(JObject obj, OptionDB db)
+        public Product(String id, JObject obj, OptionDB db, Category category,
+            String description)
         {
-            this.id = (string)obj["id"];
+            this.id = id;
             this.name = (string)obj["name"];
             this.subcategory = (string)obj["subcategory"];
             this.price = Decimal.Parse((string)obj["price"]);
             this.weight = Decimal.Parse((string)obj["weight"]);
             this.options = new List<ProductOption>();
             this.extraImages = new List<String>();
+            this.category = category;
+            this.description = description;
 
             Trace.Assert(this.price >= 0);
             Trace.Assert(this.weight >= 0);
@@ -175,6 +183,8 @@ namespace ppom
             Trace.Assert(Extensions.GetDecimalPlaces(this.weight) == 2);
             Trace.Assert(!String.IsNullOrWhiteSpace(this.id));
             Trace.Assert(!String.IsNullOrWhiteSpace(this.name));
+            Trace.Assert(!String.IsNullOrWhiteSpace(this.description));
+            Trace.Assert(this.category != null);
             //Trace.Assert(!String.IsNullOrWhiteSpace(this.subcategory));
 
             for (var i = 0; i < 10; i++) {
@@ -198,7 +208,9 @@ namespace ppom
 
         public String Id => id;
         public String Name => name;
+        public Category Category => category;
         public String SubCategory => subcategory;
+        public String Description => description;
         public Decimal Price => price;
         public Decimal Weight => weight;
         public IList<ProductOption> Options => options.AsReadOnly();
@@ -207,6 +219,8 @@ namespace ppom
         private String id;
         private String name;
         private String subcategory;
+        private String description;
+        private Category category;
         private Decimal price;
         private Decimal weight;
         private List<ProductOption> options;
@@ -220,18 +234,37 @@ namespace ppom
     /// </summary>
     public class StoreData
     {
-        public StoreData(String jsonPath)
+        public StoreData(String jsonPath, FileData fileData)
         {
             JObject root = JObject.Parse(File.ReadAllText(jsonPath));
 
             this.optionDB = new OptionDB((JArray)root["options"]);
-            this.categoryDB = new CategoryDB((JArray)root["categories"]);
+            this.categoryDB = new CategoryDB((JArray)root["categories"], fileData);
             this.products = new List<Product>();
+            this.fileData = fileData;
+
+            // category_id is not in the spreadsheet.  Figure it out from the filesystem.
+            var productToCategoryMap = new Dictionary<String, String>();
+            foreach (var categoryId in Categories.CategoryIds) {
+                foreach (var productId in fileData.GetProductIdsForCategory(categoryId)) {
+                    Console.WriteLine($"product {productId} -> {categoryId}");
+                    productToCategoryMap[productId] = categoryId;
+                }
+            }
 
             foreach (var obj in root["products"]) {
-                var product = new Product((JObject)obj, optionDB);
-                products.Add(product);
-                Debug.WriteLine($"Loaded product {product.Id}");
+                var productId = (string)obj["id"];
+                if (!productToCategoryMap.ContainsKey(productId)) {
+                    Console.WriteLine($"Warning: {productId} not in folder");
+                } else {
+                    var category = Categories.GetCategory(productToCategoryMap[productId]);
+                    var productDir = fileData.GetProductDirectory(category.Id, productId);
+                    var description = fileData.GetProductDescriptionHTML(productDir);
+                    var product = new Product(productId, (JObject)obj, optionDB,
+                        category, description);
+                    products.Add(product);
+                    Debug.WriteLine($"Loaded product {product.Id}");
+                }
             }
         }
 
@@ -242,6 +275,7 @@ namespace ppom
         private OptionDB optionDB;
         private CategoryDB categoryDB;
         private List<Product> products;
+        private FileData fileData;
     }
 
 }

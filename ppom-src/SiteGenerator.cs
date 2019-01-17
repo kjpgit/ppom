@@ -35,7 +35,6 @@ namespace ppom
     public class CategoryModel
     {
         public Category Category;
-        public string Description;
         public List<SubCategory> SubCategories;
     }
 
@@ -77,19 +76,12 @@ namespace ppom
         public void generate_categories() {
             foreach (String categoryId in storeData.Categories.CategoryIds) {
                 Category category = storeData.Categories.GetCategory(categoryId);
+                Console.WriteLine($"Processing category {category.Id}");
 
                 var subcat_map = new OrderedDictionary();
 
                 foreach (var product in storeData.Products) {
-                    if (!fileData.ProductExists(product.Id)) {
-                        Console.WriteLine($"Warning: product {product.Id} does not exist");
-                        continue;
-                    } else {
-                        Console.WriteLine($"Processing product {product.Id}");
-                    }
-
-                    var _categoryId = fileData.GetProductCategoryId(product.Id);
-                    if (_categoryId != categoryId) {
+                    if (product.Category.Id != categoryId) {
                         continue;
                     }
 
@@ -122,7 +114,6 @@ namespace ppom
                 // Build the model
                 var model = new CategoryModel() {
                     Category = category,
-                    Description = "fixme",
                     SubCategories = subcats
                 };
 
@@ -135,13 +126,6 @@ namespace ppom
 
         public void generate_listings() {
             foreach (Product product in storeData.Products) {
-                if (!fileData.ProductExists(product.Id)) {
-                    Console.WriteLine($"Warning: product {product.Id} does not exist");
-                    continue;
-                } else {
-                    Console.WriteLine($"Processing product {product.Id}");
-                }
-
                 Directory.CreateDirectory(getOutputDir(getProductDir(product.Id)));
                 Directory.CreateDirectory(getOutputDir(getProductDir(product.Id) + "/large"));
                 Directory.CreateDirectory(getOutputDir(getProductDir(product.Id) + "/medium"));
@@ -149,14 +133,8 @@ namespace ppom
 
                 generate_listing_images(product);
 
-                string categoryId = fileData.GetProductCategoryId(product.Id);
-                string categoryName = storeData.Categories.GetCategory(categoryId).Name;
-
                 dynamic viewBag = new ExpandoObject();
                 viewBag.CacheBust = GetCacheBust();
-                viewBag.CategoryId = categoryId;
-                viewBag.CategoryName = categoryName;
-                viewBag.ProductDescription = fileData.GetProductDescriptionHTML(product.Id);
                 viewBag.Images = get_images_for_display(product);
 
                 var model = product;

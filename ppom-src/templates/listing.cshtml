@@ -8,7 +8,7 @@
 <nav class="breadcrumb-nav">
   <a href="/">All Products</a>
   <span class="shop-breadcrumb-separator">&gt;</span>
-  <a href="/shop/@ViewBag.CategoryId/">@ViewBag.CategoryName</a>
+  <a href="/shop/@Model.Category.Id/">@Model.Category.Name</a>
   <span class="shop-breadcrumb-separator">&gt;</span>
   @Model.Name
 </nav>
@@ -83,7 +83,7 @@
     }
 
     <div class="shop-listing-description">
-        @Raw(@ViewBag.ProductDescription)
+        @Raw(Model.Description)
     </div>
 
   </div>

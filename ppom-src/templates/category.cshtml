@@ -11,7 +11,11 @@
 </nav>
 
 <h1 class="shop-page-title">@Model.Category.Name</h1>
-<h2 class="shop-category-subhead">@Model.Description</h2>
+
+<!-- workaround for razor Empty Raw bug: https://github.com/toddams/RazorLight/issues/172 -->
+@if (Model.Category.Description != "") {
+  <h2 class="shop-category-subhead">@Raw(Model.Category.Description)</h2>
+}
 
 <div id="categoryGallery">
 

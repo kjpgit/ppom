@@ -43,24 +43,13 @@ namespace ppom
     }
 
     /// <summary>
-    /// Contains product data stored on the filesystem.
+    /// Accesses product data stored on the filesystem.
     /// (Markdown files, macros, images)
     /// </summary>
     public class FileData
     {
-        public FileData(String rootPath, StoreData storeData) {
+        public FileData(String rootPath) {
             this.rootPath = rootPath;
-            this.storeData = storeData;
-            this.productToCategoryMap = new Dictionary<String, String>();
-
-            foreach (var categoryId in storeData.Categories.CategoryIds) {
-                string path = rootPath + "/" + categoryId;
-                foreach (var subpath in Directory.GetDirectories(path)) {
-                    string productId = Path.GetFileName(subpath);
-                    Console.WriteLine($"product {productId} -> {categoryId}");
-                    productToCategoryMap[productId] = categoryId;
-                }
-            }
         }
 
         public String ExpandMacros(String text) {
@@ -76,20 +65,32 @@ namespace ppom
             return text;
         }
 
-        public bool ProductExists(String productId) {
-            return productToCategoryMap.ContainsKey(productId);
+        public List<String> GetProductIdsForCategory(String categoryId)
+        {
+            var path = rootPath + "/" + categoryId;
+            var ret = new List<String>();
+            foreach (var subpath in Directory.GetDirectories(path)) {
+                string productId = Path.GetFileName(subpath);
+                ret.Add(productId);
+            }
+            return ret;
         }
 
-        public string GetProductCategoryId(String productId) {
-            return productToCategoryMap[productId];
+        public string GetProductDirectory(String categoryId, String productId) {
+            return rootPath + "/" + categoryId + "/" + productId;
         }
 
-        public string GetProductDirectory(String productId) {
-            return rootPath + "/" + GetProductCategoryId(productId) + "/" + productId;
+        public string GetProductDescriptionHTML(String productDir) {
+            string path = productDir + "/description.md";
+            string text = File.ReadAllText(path);
+            return ProcessMarkdownWithMacros(text);
         }
 
-        public string GetProductDescriptionHTML(String productId) {
-            string path = GetProductDirectory(productId) + "/description.md";
+        public string GetCategoryDescriptionHTML(String categoryId) {
+            string path = rootPath + "/" + categoryId + "/description.md";
+            if (!File.Exists(path)) {
+                return "";
+            }
             string text = File.ReadAllText(path);
             return ProcessMarkdownWithMacros(text);
         }
@@ -98,7 +99,7 @@ namespace ppom
         {
             // Main images - sorted by filename
             var ret = new List<String>();
-            string productDir = GetProductDirectory(product.Id);
+            string productDir = GetProductDirectory(product.Category.Id, product.Id);
             foreach (var file in Directory.GetFiles(productDir)) {
                 if (IsImageFile(file)) {
                     ret.Add(file);
@@ -132,7 +133,5 @@ namespace ppom
         }
 
         private string rootPath;
-        private StoreData storeData;
-        private Dictionary<String, String> productToCategoryMap;
     }
 }
