@@ -76,6 +76,16 @@ namespace ppom
             File.WriteAllText(path, result);
         }
 
+        public void generate_misc_pages() {
+            dynamic viewBag = GetViewBag();
+            viewBag.FileData = fileData;
+            string model = null;
+            string result = runTemplate("cart", model, viewBag);
+            string path = getOutputDir("shop/cart.html");
+            File.WriteAllText(path, result);
+
+        }
+
         public void generate_categories() {
             foreach (var category in storeData.Categories) {
                 Console.WriteLine($"Processing category {category.Id}");

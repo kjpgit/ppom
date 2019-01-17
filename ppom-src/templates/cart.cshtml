@@ -1,4 +1,8 @@
-{{PAGE_HEADER}}
+@{
+    ViewBag.Title = "Patterned Pomegranate: Shopping Cart";
+    ViewBag.PageId = "cartPage";
+    Layout = "layout.cshtml";
+}
 
 <nav class="breadcrumb-nav">
   <a href="/">&lt; Continue Shopping</a>
@@ -10,20 +14,19 @@
   <div class="col-lg-10 col-lg-offset-1">
     <div id="cartWrapper">
       <div id="cartItems"></div>
+
       <!--
       <div id="vacationNotice" style="background-color: yellow; border: 3px dashed red; padding: 10px; margin-top: 30px; margin-bottom: 30px;">
         <h2>Processing Time Notice</h2>
         <p>I will be on vacation from <strong>May 10-16, 2018</strong>.  Please allow for extra processing time, in addition to the time noted below.</p>
       </div>
       -->
+
       <div class="row">
         <div class="col-md-6" id="cartPolicies">
-          {{policies_cart}}
+          @Raw(ViewBag.FileData.GetMarkdownHTML("about/policies_cart.md"))
         </div>
         <div class="col-md-6" id="cartCheckout"></div>
     </div>
   </div>
 </div>
-
-{{PAGE_FOOTER}}
-
