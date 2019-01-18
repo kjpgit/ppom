@@ -36,7 +36,8 @@ done
 
 
 # Generate site using C# program
-dotnet run -p source/SiteBuilder -- ${DATA_DIR} ${BUILD_DIR}
+# Change directory so it finds its templates
+(cd source/SiteBuilder && dotnet run -- ${DATA_DIR} ${BUILD_DIR})
 
 
 # Check for errors
