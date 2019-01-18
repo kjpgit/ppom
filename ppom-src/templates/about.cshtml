@@ -1,4 +1,8 @@
-{{PAGE_HEADER}}
+@{
+    ViewBag.Title = "Patterned Pomegranate: About";
+    ViewBag.PageId = "aboutPage";
+    Layout = "layout.cshtml";
+}
 
 <h1 class="shop-page-title">About Patterned Pomegranate</h1>
 
@@ -14,7 +18,7 @@
   </div>
 
   <div class="col-sm-6 col-md-8 article">
-    {{about}}
+    @Raw(ViewBag.FileData.GetMarkdownHTML("about/about.md"))
     <div class='clearfix'></div>
   </div>
 
@@ -22,15 +26,12 @@
 
 <div class="row">
   <div class="col-md-6 article">
-    {{faq}}
+    @Raw(ViewBag.FileData.GetMarkdownHTML("about/FAQ.md"))
     <div class='clearfix'></div>
   </div>
 
   <div class="col-md-6 article" id="policies-link">
-    {{policies}}
+    @Raw(ViewBag.FileData.GetMarkdownHTML("about/policies.md"))
     <div class='clearfix'></div>
   </div>
 </div>
-
-{{PAGE_FOOTER}}
-

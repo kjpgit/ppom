@@ -1,10 +1,11 @@
-{{PAGE_HEADER}}
+@{
+    ViewBag.Title = "Patterned Pomegranate: Order Receipt";
+    ViewBag.PageId = "receiptPage";
+    Layout = "layout.cshtml";
+}
 
 <h1 class="shop-page-title">Thank you for your order</h1>
 
-{{receipt}}
+@Raw(ViewBag.FileData.GetMarkdownHTML("about/receipt.md"))
 
 <div id="cartEmptyCart"></div>
-
-{{PAGE_FOOTER}}
-

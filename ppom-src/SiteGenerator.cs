@@ -65,13 +65,14 @@ namespace ppom
             foreach (var category in storeData.Categories) {
                 Directory.CreateDirectory(getOutputDir(getCategoryDir(category.Id)));
             }
+            Directory.CreateDirectory(getOutputDir("/about"));
         }
 
         public void generate_front_page() {
             dynamic viewBag = GetViewBag();
             viewBag.FileData = fileData;
             var model = storeData;
-            string result = runTemplate("shop", model, viewBag);
+            string result = runTemplate("front", model, viewBag);
             string path = getOutputDir("index.html");
             File.WriteAllText(path, result);
         }
@@ -80,10 +81,22 @@ namespace ppom
             dynamic viewBag = GetViewBag();
             viewBag.FileData = fileData;
             string model = null;
+
             string result = runTemplate("cart", model, viewBag);
             string path = getOutputDir("shop/cart.html");
             File.WriteAllText(path, result);
 
+            result = runTemplate("about", model, viewBag);
+            path = getOutputDir("about/index.html");
+            File.WriteAllText(path, result);
+
+            result = runTemplate("receipt", model, viewBag);
+            path = getOutputDir("receipt.html");
+            File.WriteAllText(path, result);
+
+            result = runTemplate("error", model, viewBag);
+            path = getOutputDir("error.html");
+            File.WriteAllText(path, result);
         }
 
         public void generate_categories() {
