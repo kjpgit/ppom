@@ -8,6 +8,7 @@ namespace ppom
 {
     class Program
     {
+        // Usage: dotnet run -- SPREADSHEET_ID OUTPUT_FILE
         static void Main(string[] args)
         {
             string spreadsheet_id = args[0];

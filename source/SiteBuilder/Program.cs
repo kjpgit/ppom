@@ -8,19 +8,20 @@ namespace ppom
 {
     class Program
     {
-        // Usage: dotnet run -- /path/to/storedata
+        // Usage: dotnet run -- DATA_DIR BUILD_DIR
         static void Main(string[] args)
         {
-            string data_path = args[0];
-            string blog_path = data_path + "/blog";
-            string store_data_json = data_path + "/storedata.json";
+            string data_dir = args[0];
+            string build_dir = args[1];
+            string blog_path = data_dir + "/blog";
+            string store_data_json = data_dir + "/storedata.json";
 
             //test_markdown("/tmp/mdtest", fileData);
 
-            var fileData = new FileData(data_path);
+            var fileData = new FileData(data_dir);
             var blogData = new BlogData(blog_path);
             var storeData = new StoreData(store_data_json, fileData);
-            var generator = new SiteGenerator(storeData, fileData);
+            var generator = new SiteGenerator(build_dir, storeData, fileData);
 
             generator.create_directories();
             generator.generate_front_page();

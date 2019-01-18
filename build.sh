@@ -7,11 +7,10 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-export BUILD_DIR="$1"
-export DATA_DIR=~/jgit/data
+DATA_DIR="$1"
+BUILD_DIR="$2"
 
 mkdir -p ${BUILD_DIR} ${BUILD_DIR}/shop
-
 
 # Static assets
 rm -rf ${BUILD_DIR}/include
@@ -36,7 +35,11 @@ for year in `ls ${DATA_DIR}/blog/`; do
 done
 
 
-# Check
+# Generate site using C# program
+dotnet run -p source/SiteBuilder -- ${DATA_DIR} ${BUILD_DIR}
+
+
+# Check for errors
 if fgrep -r -I "{{" $BUILD_DIR --exclude-dir pswp;  then
     echo "Error: unhandled macros"
     exit 1
