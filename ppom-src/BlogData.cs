@@ -81,7 +81,9 @@ namespace ppom
                 foreach (var blog_file in Directory.GetFiles(year_dir)) {
                     if (blog_file.ToLower().EndsWith(".md")) {
                         var post = new BlogPost(year, blog_file);
-                        blogArchive.years.Last().posts.Add(post);
+                        if (!post.IsDraft()) {
+                            blogArchive.years.Last().posts.Add(post);
+                        }
                     }
                 }
             }

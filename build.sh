@@ -28,6 +28,13 @@ cp -a misc/google88ea80b7546f5a5c.html $BUILD_DIR
 cp ${DATA_DIR}/sidebar.png ${BUILD_DIR}/include
 convert -thumbnail 640 ${DATA_DIR}/services/services.jpg ${BUILD_DIR}/include/services-medium.jpg
 
+# Blog Images / Files
+for year in `ls ${DATA_DIR}/blog/`; do
+    mkdir -p ${BUILD_DIR}/blog/$year/
+    cp -a ${DATA_DIR}/blog/$year/images ${BUILD_DIR}/blog/$year/
+    cp -a ${DATA_DIR}/blog/$year/downloads ${BUILD_DIR}/blog/$year/
+done
+
 
 # Check
 if fgrep -r -I "{{" $BUILD_DIR --exclude-dir pswp;  then
