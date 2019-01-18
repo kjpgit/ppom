@@ -14,14 +14,14 @@ mkdir -p ${BUILD_DIR} ${BUILD_DIR}/shop
 
 # Static assets
 rm -rf ${BUILD_DIR}/include
-cp -a include ${BUILD_DIR}/include
+cp -a assets/include ${BUILD_DIR}/include
 
 lessc ${BUILD_DIR}/include/main.less ${BUILD_DIR}/include/main.css
 rm ${BUILD_DIR}/include/main.less
 
-cp -a misc/favicon.ico $BUILD_DIR
-cp -a misc/BingSiteAuth.xml $BUILD_DIR
-cp -a misc/google88ea80b7546f5a5c.html $BUILD_DIR
+cp -a assets/misc/favicon.ico $BUILD_DIR
+cp -a assets/misc/BingSiteAuth.xml $BUILD_DIR
+cp -a assets/misc/google88ea80b7546f5a5c.html $BUILD_DIR
 
 # Misc stuff not in the repo yet
 cp ${DATA_DIR}/sidebar.png ${BUILD_DIR}/include
