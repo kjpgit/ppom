@@ -18,6 +18,8 @@ namespace ppom
             var fileData = new FileData("/home/karl/jgit/data");
             var storeData = new StoreData(STOREDATA, fileData);
 
+            test_markdown("/tmp/mdtest", fileData);
+
             var generator = new SiteGenerator(storeData, fileData);
             generator.create_directories();
             generator.generate_front_page();
@@ -25,6 +27,17 @@ namespace ppom
             generator.generate_listings();
             generator.generate_categories();
 
+        }
+
+        static void test_markdown(string rootDir, FileData fileData) {
+            foreach (var path in Directory.GetFiles(rootDir)) {
+                if (path.EndsWith(".mdorig")) {
+                    string output = path.Replace(".mdorig", ".net");
+                    string text = File.ReadAllText(path);
+                    string html = Markdig.Markdown.ToHtml(text);
+                    File.WriteAllText(output, html);
+                }
+            }
         }
     }
 }
