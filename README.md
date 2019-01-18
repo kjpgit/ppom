@@ -2,7 +2,7 @@ Source code for https://www.patternedpom.com (my wife's ecommerce site)
 
 * Language: C# with Razor Templates
 
-* HTML Prettiness: CSS (Less) and Bootstrap
+* HTML Prettiness: CSS (Less), JQuery, Bootstrap
 
 * Shopping Cart: Vanilla.js + LocalStorage 
 
