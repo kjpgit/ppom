@@ -62,15 +62,15 @@ namespace ppom
         }
 
         public void create_directories() {
+            Directory.CreateDirectory(getOutputDir("/about"));
+            Directory.CreateDirectory(getOutputDir("/blog"));
             foreach (var category in storeData.Categories) {
                 Directory.CreateDirectory(getOutputDir(getCategoryDir(category.Id)));
             }
-            Directory.CreateDirectory(getOutputDir("/about"));
         }
 
         public void generate_front_page() {
             dynamic viewBag = GetViewBag();
-            viewBag.FileData = fileData;
             var model = storeData;
             string result = runTemplate("front", model, viewBag);
             string path = getOutputDir("index.html");
@@ -79,7 +79,6 @@ namespace ppom
 
         public void generate_misc_pages() {
             dynamic viewBag = GetViewBag();
-            viewBag.FileData = fileData;
             string model = null;
 
             string result = runTemplate("cart", model, viewBag);
@@ -97,6 +96,16 @@ namespace ppom
             result = runTemplate("error", model, viewBag);
             path = getOutputDir("error.html");
             File.WriteAllText(path, result);
+        }
+
+        public void generate_blog(BlogData blogData) {
+            dynamic viewBag = GetViewBag();
+
+            string result = runTemplate("blog-archive", blogData.BlogArchive, viewBag);
+            string path = getOutputDir("blog/index.html");
+            File.WriteAllText(path, result);
+
+
         }
 
         public void generate_categories() {
@@ -215,6 +224,7 @@ namespace ppom
         private ExpandoObject GetViewBag() {
             dynamic viewBag = new ExpandoObject();
             viewBag.CacheBust = GetCacheBust();
+            viewBag.FileData = fileData;
             return viewBag;
         }
 

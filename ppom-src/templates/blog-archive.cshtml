@@ -1,9 +1,26 @@
-{{PAGE_HEADER}}
+@model ppom.BlogArchive
+@{
+    ViewBag.Title = "Patterned Pomegranate: Blog Archive";
+    ViewBag.PageId = "blogArchivePage";
+    Layout = "layout.cshtml";
+}
 
 <h1 style="text-align: left" class="shop-page-title">Blog Archive</h1>
 
-{{DATA}}
+@foreach (var yearList in Model.years.OrderByDescending(x => x.year)) {
 
+    <h2>@yearList.year</h2>
 
-{{PAGE_FOOTER}}
+    <ul>
 
+    @foreach (var post in yearList.posts.OrderBy(x => x.Title)) {
+
+        <li>
+            <a href="@post.path">@post.Title</a>
+        </li>
+
+    }
+
+    </ul>
+
+}

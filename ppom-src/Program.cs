@@ -16,9 +16,10 @@ namespace ppom
             //GoogleSheets.LoadSheet(SPREADSHEET_ID, STOREDATA);
 
             var fileData = new FileData("/home/karl/jgit/data");
+            var blogData = new BlogData("/home/karl/jgit/data/blog");
             var storeData = new StoreData(STOREDATA, fileData);
 
-            test_markdown("/tmp/mdtest", fileData);
+            //test_markdown("/tmp/mdtest", fileData);
 
             var generator = new SiteGenerator(storeData, fileData);
             generator.create_directories();
@@ -26,6 +27,7 @@ namespace ppom
             generator.generate_misc_pages();
             generator.generate_listings();
             generator.generate_categories();
+            generator.generate_blog(blogData);
 
         }
 

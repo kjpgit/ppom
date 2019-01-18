@@ -3,6 +3,7 @@ import subprocess
 import os
 import mistune
 
+
 for root, dirs, files in os.walk("/home/karl/jgit/data"):
     for file in files:
         if file.lower().endswith(".md"):
