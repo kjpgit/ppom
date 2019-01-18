@@ -1,7 +1,7 @@
-token.json
 credentials.json
 storedata.json
 .vscode
 bin
 obj
 *.swp
+.token.json
