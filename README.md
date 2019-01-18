@@ -9,3 +9,5 @@ Source code for https://www.patternedpom.com (my wife's ecommerce site)
 * Payment Processing: Paypal
 
 * Content Management: Google Spreadsheet, local directories of images and markdown files
+
+* Hosting: AWS CloudFront, S3, Lambda
