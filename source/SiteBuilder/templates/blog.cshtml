@@ -1,0 +1,26 @@
+@model ppom.BlogPost
+@{
+    ViewBag.Title = Model.Title;
+    ViewBag.PageId = "blogPage";
+    Layout = "layout.cshtml";
+}
+
+<nav class="breadcrumb-nav">
+  <a href="/blog/">&lt; Blog Archive</a>
+</nav>
+
+<h1 style="text-align: left" class="shop-page-title">@Model.Title</h1>
+
+<div class="row">
+  <div class="blog-post col-md-8">
+    @Raw(ViewBag.FileData.ProcessMarkdownWithMacros(Model.markdownText))
+  </div>
+
+  <div class="col-md-4">
+    <div class="sidebar-etsy">
+      <a href="/"><img class="img-responsive" alt="My Cards and Signs" src="/include/sidebar.png"></a>
+    </div>  
+  </div>
+
+</div>
+

@@ -1,0 +1,54 @@
+@{
+    ViewBag.Title = "Patterned Pomegranate: " + Model.Category.Name;
+    ViewBag.PageId = "categoryPage";
+    Layout = "layout.cshtml";
+}
+
+<nav class="breadcrumb-nav">
+  <a href="/">All Products</a>
+  <span class="shop-breadcrumb-separator">&gt;</span>
+  @Model.Category.Name
+</nav>
+
+<h1 class="shop-page-title">@Model.Category.Name</h1>
+
+@if (Model.Category.Description != null) {
+  <div class="category-description">@Raw(Model.Category.Description)</div>
+}
+
+<div id="categoryGallery">
+
+@foreach (var subCategory in Model.SubCategories) {
+
+    @if (subCategory.Name != null) {
+      <h2 class="subcategory-header">@subCategory.Name</h2>
+    }
+
+    @foreach (var chunk in ppom.Extensions.SplitChunks(subCategory.Listings, 3)) {
+
+      <div class="row">
+
+        @foreach (var product in chunk) {
+
+          <div class="col-md-4 product-cell">
+            <a href="/shop/listing/@product.Id/">
+
+              @if (subCategory.Name == null) {
+                <h2 class="product-header">@product.Name</h2>
+              } else {
+                <h3 class="product-header">@product.Name</h3>
+              }
+
+              <img class="product-image" 
+                   src="/shop/listing/@product.Id/medium/@product.ImageNames[0]">
+            </a>
+            <div class='clearfix'></div>
+          </div>
+        }
+
+      </div>
+
+    }
+}
+
+</div>
