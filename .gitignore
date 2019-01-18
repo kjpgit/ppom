@@ -1,6 +1,7 @@
 credentials.json
 storedata.json
 .vscode
+*.code-workspace
 bin
 obj
 *.swp
