@@ -105,7 +105,14 @@ namespace ppom
             string path = getOutputDir("blog/index.html");
             File.WriteAllText(path, result);
 
-
+            foreach (var yearList in blogData.BlogArchive.years) {
+                Directory.CreateDirectory(getOutputDir("/blog/" + yearList.year));
+                foreach (var post in yearList.posts) {
+                    result = runTemplate("blog", post, viewBag);
+                    path = getOutputDir(post.path);
+                    File.WriteAllText(path, result);
+                }
+            }
         }
 
         public void generate_categories() {
