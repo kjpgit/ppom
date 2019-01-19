@@ -1,6 +1,6 @@
 Source code for https://www.patternedpom.com (my wife's ecommerce site)
 
-* Language: C# with Razor Templates
+* Language: C# with Razor Templates (.NET Core 2.2, RazorLight)
 
 * HTML Prettiness: CSS (Less), JQuery, Bootstrap, Photoswipe, xZoom
 
