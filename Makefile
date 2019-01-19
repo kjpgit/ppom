@@ -19,4 +19,7 @@ build:
 clean:
 	rm -rf $(BUILD_DIR)
 
+serve:
+	twistd -n web -p tcp:8000 --path $(BUILD_DIR)
+
 all: download build
