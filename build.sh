@@ -11,6 +11,7 @@ DATA_DIR="$1"
 BUILD_DIR="$2"
 
 # Rename a file to HASH-file.extension
+# We always prefer to rename files on change instead of mutating them.
 set_md5_hash() {
     local checksum=`md5sum $1 | awk '{print $1}'`
     local newname="$checksum-`basename $1`"
@@ -47,8 +48,9 @@ done
 (cd source/SiteBuilder && dotnet run -- ${DATA_DIR} ${BUILD_DIR})
 
 
-HASH_MAIN_CSS=`set_md5_hash ${BUILD_DIR}/include/main.css`
-HASH_MYCART_JS=`set_md5_hash ${BUILD_DIR}/include/mycart.js`
+# Now move files to their hashed names
+set_md5_hash ${BUILD_DIR}/include/main.css
+set_md5_hash ${BUILD_DIR}/include/mycart.js
 
 
 # Check for errors
