@@ -76,25 +76,23 @@ namespace ppom
     public class BlogData {
         public BlogData(string rootPath) {
             this.rootPath = rootPath;
-            blogArchive = new BlogArchive();
+            BlogArchive = new BlogArchive();
 
             foreach (var year_dir in Directory.GetDirectories(rootPath).OrderBy(p => p)) {
                 string year = Path.GetFileName(year_dir);
-                blogArchive.years.Add(new BlogArchiveYear(year));
+                BlogArchive.years.Add(new BlogArchiveYear(year));
                 foreach (var blog_file in Directory.GetFiles(year_dir)) {
                     if (blog_file.ToLower().EndsWith(".md")) {
                         var post = new BlogPost(year, blog_file);
                         if (!post.IsDraft()) {
-                            blogArchive.years.Last().posts.Add(post);
+                            BlogArchive.years.Last().posts.Add(post);
                         }
                     }
                 }
             }
         }
 
-        public BlogArchive BlogArchive => blogArchive;
-
-        private BlogArchive blogArchive;
+        public BlogArchive BlogArchive { get; }
         private string rootPath;
     }
 
