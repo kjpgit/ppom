@@ -24,14 +24,13 @@ namespace ppom
             foreach (var value in values) {
                 Trace.Assert(!String.IsNullOrWhiteSpace(value), "No option value");
             }
-            this.name = name;
+            this.Name = name;
             this.values = new List<String>(values);
         }
 
-        public String Name => name;
+        public String Name { get; }
         public IList<String> Values => values.AsReadOnly();
 
-        private String name;
         private List<String> values;
     }
 
@@ -76,15 +75,12 @@ namespace ppom
         public ProductOption(String label, OptionList optionList)
         {
             Trace.Assert(!String.IsNullOrWhiteSpace(label));
-            this.label = label;
-            this.optionList = optionList;
+            this.Label = label;
+            this.OptionList = optionList;
         }
 
-        public String Label => label;
-        public OptionList OptionList => optionList;
-
-        private String label;
-        private OptionList optionList;
+        public String Label { get; }
+        public OptionList OptionList { get; }
     }
 
 
@@ -94,26 +90,21 @@ namespace ppom
     /// </summary>
     public class Category 
     {
-        public Category(String Id, String Name, String Description, String Picture) {
-            Trace.Assert(!String.IsNullOrWhiteSpace(Id));
-            Trace.Assert(!String.IsNullOrWhiteSpace(Name));
-            Trace.Assert(!String.IsNullOrWhiteSpace(Picture));
+        public Category(String id, String name, String description, String picture) {
+            Trace.Assert(!String.IsNullOrWhiteSpace(id));
+            Trace.Assert(!String.IsNullOrWhiteSpace(name));
+            Trace.Assert(!String.IsNullOrWhiteSpace(picture));
 
-            id = Id;
-            name = Name;
-            picture = Picture;
-            description = Description;
+            Id = id;
+            Name = name;
+            Picture = picture;
+            Description = description;
         }
 
-        public String Id => id;
-        public String Name => name;
-        public String Picture => picture;
-        public String Description => description; // may be null
-
-        private String name;
-        private String id;
-        private String picture;
-        private String description;
+        public String Id { get; }
+        public String Name { get; }
+        public String Picture { get; }
+        public String Description { get; }  // may be null
     }
 
 
@@ -126,26 +117,26 @@ namespace ppom
         public Product(String id, JObject obj, OptionDB db, Category category,
                 FileData fileData, String sourceDir)
         {
-            this.id = id;
-            this.name = (string)obj["name"];
-            this.subcategory = (string)obj["subcategory"];
-            this.price = Decimal.Parse((string)obj["price"]);
-            this.weight = Decimal.Parse((string)obj["weight"]);
+            this.Id = id;
+            this.Name = (string)obj["name"];
+            this.SubCategory = (string)obj["subcategory"];
+            this.Price = Decimal.Parse((string)obj["price"]);
+            this.Weight = Decimal.Parse((string)obj["weight"]);
             this.options = new List<ProductOption>();
             this.extraImages = new List<String>();
-            this.category = category;
-            this.sourceDir = sourceDir;
-            this.description = fileData.GetProductDescriptionHTML(sourceDir);
+            this.Category = category;
+            this.Description = fileData.GetProductDescriptionHTML(sourceDir);
             this.fileData = fileData;
+            this.sourceDir = sourceDir;
 
-            Trace.Assert(this.price >= 0);
-            Trace.Assert(this.weight >= 0);
-            Trace.Assert(Extensions.GetDecimalPlaces(this.price) == 2);
-            Trace.Assert(Extensions.GetDecimalPlaces(this.weight) == 2);
-            Trace.Assert(!String.IsNullOrWhiteSpace(this.id));
-            Trace.Assert(!String.IsNullOrWhiteSpace(this.name));
-            Trace.Assert(!String.IsNullOrWhiteSpace(this.description));
-            Trace.Assert(this.category != null);
+            Trace.Assert(this.Price >= 0);
+            Trace.Assert(this.Weight >= 0);
+            Trace.Assert(Extensions.GetDecimalPlaces(this.Price) == 2);
+            Trace.Assert(Extensions.GetDecimalPlaces(this.Weight) == 2);
+            Trace.Assert(!String.IsNullOrWhiteSpace(this.Id));
+            Trace.Assert(!String.IsNullOrWhiteSpace(this.Name));
+            Trace.Assert(!String.IsNullOrWhiteSpace(this.Description));
+            Trace.Assert(this.Category != null);
             //Trace.Assert(!String.IsNullOrWhiteSpace(this.subcategory));
 
             for (var i = 0; i < 10; i++) {
@@ -167,13 +158,13 @@ namespace ppom
             }
         }
 
-        public String Id => id;
-        public String Name => name;
-        public Category Category => category;
-        public String SubCategory => subcategory;
-        public String Description => description;
-        public Decimal Price => price;
-        public Decimal Weight => weight;
+        public String Id { get; }
+        public String Name { get; }
+        public Category Category { get; }
+        public String SubCategory { get; }
+        public String Description { get; }
+        public Decimal Price { get; }
+        public Decimal Weight { get; }
         public IList<ProductOption> Options => options.AsReadOnly();
         public IList<String> ExtraImages => extraImages.AsReadOnly();
 
@@ -184,17 +175,10 @@ namespace ppom
             }
         } 
 
-        private String id;
-        private String name;
-        private String subcategory;
-        private String description;
-        private String sourceDir;
-        private FileData fileData;
-        private Category category;
-        private Decimal price;
-        private Decimal weight;
         private List<ProductOption> options;
         private List<String> extraImages;
+        private String sourceDir;
+        private FileData fileData;
     }
 
 
@@ -208,17 +192,17 @@ namespace ppom
         {
             JObject root = JObject.Parse(File.ReadAllText(jsonPath));
 
-            this.optionDB = new OptionDB((JArray)root["options"]);
+            this.Options = new OptionDB((JArray)root["options"]);
             this.categories = new OrderedDictionary();
             this.products = new List<Product>();
             this.fileData = fileData;
 
             foreach (var obj in root["categories"]) {
                 var category = new Category(
-                    Id: (String)obj["id"], 
-                    Name: (String)obj["name"], 
-                    Picture: (String)obj["picture"],
-                    Description: fileData.GetCategoryDescriptionHTML((String)obj["id"])
+                    id: (String)obj["id"], 
+                    name: (String)obj["name"], 
+                    picture: (String)obj["picture"],
+                    description: fileData.GetCategoryDescriptionHTML((String)obj["id"])
                     );
 
                 // Will throw exception if already exists
@@ -243,7 +227,7 @@ namespace ppom
                     var category = GetCategoryById(productToCategoryMap[productId]);
                     var productDir = fileData.GetProductDirectory(category.Id, productId);
                     var description = fileData.GetProductDescriptionHTML(productDir);
-                    var product = new Product(productId, (JObject)obj, optionDB,
+                    var product = new Product(productId, (JObject)obj, Options,
                         category, fileData, productDir);
                     products.Add(product);
                     Debug.WriteLine($"Loaded product {product.Id}");
@@ -251,7 +235,7 @@ namespace ppom
             }
         }
 
-        public OptionDB Options => optionDB;
+        public OptionDB Options { get; }
 
         public Category GetCategoryById(string categoryId) {
             return (Category)categories[categoryId];
@@ -266,7 +250,6 @@ namespace ppom
 
         public IList<Product> Products => products.AsReadOnly();
 
-        private OptionDB optionDB;
         private OrderedDictionary categories;
         private List<Product> products;
         private FileData fileData;
