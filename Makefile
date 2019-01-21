@@ -7,10 +7,11 @@ DRY_RUN = --dry-run
 
 
 help:
-	@echo "clean: remove build dir"
-	@echo "all: download spreadsheet and build site"
-	@echo "build: build site (doesn't download spreadsheet)"
-	@echo "download: download google spreadsheet and convert to nice json"
+	@echo "clean:       remove build dir"
+	@echo "all:         download spreadsheet and build site"
+	@echo "build:       build site (doesn't download spreadsheet)"
+	@echo "serve:       start twistd at 0.0.0.0:8000 for test site"
+	@echo "download:    download google spreadsheet and convert to nice json"
 	@echo "upload-test: upload to test s3 bucket"
 	@echo "upload-prod: upload to prod s3 bucket"
 
