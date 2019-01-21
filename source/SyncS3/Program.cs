@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Threading;
 
@@ -12,6 +11,7 @@ using Amazon.Runtime.CredentialManagement;
 
 namespace SyncS3
 {
+    // This class is immutable.  Aren't autoproperties nice!
     class LocalFileInfo {
         public LocalFileInfo(string path, string rootPath) {
             Trace.Assert(path.StartsWith(rootPath));
@@ -29,6 +29,15 @@ namespace SyncS3
         public string ContentType { get; }
 
         public string FullLocalPath { get; }
+
+        public string CacheControl { 
+            get {
+                switch (ContentType) {
+                    case "text/html": return "public, max-age=60";
+                    default: return "public, max-age=86400";
+                }
+            }
+        }
 
         // All file types on our site.  Simple and consistent - no MIME sniffing.
         static string GetContentType(string path) {
@@ -50,12 +59,6 @@ namespace SyncS3
         }
     }
 
-    class RemoteFileInfo {
-        public S3Object obj;
-        public bool needs_delete = false;
-        public bool needs_upload = false;
-    }
-
     class Program
     {
         // Usage: dotnet run -- /root/path BucketName
@@ -71,40 +74,52 @@ namespace SyncS3
             var localFiles = ListLocalDirectory(rootPath);
             var remoteFiles = ScanBucket(client, bucketName);
 
-            var remoteKeysProcessed = new HashSet<String>();
-            foreach (var remoteFile in remoteFiles) {
-                remoteKeysProcessed.Add(remoteFile.obj.Key);
-            }
 
             // Step 1: Upload new files
             foreach (var localFile in localFiles.Values) {
-                if (!remoteKeysProcessed.Contains(localFile.RelativePath)) {
+                if (!remoteFiles.ContainsKey(localFile.RelativePath)) {
                     Console.WriteLine("New file needs upload: {0}", localFile.RelativePath);
+                    upload_file(client, localFile, bucketName);
                 }
             }
 
             // Step 2: Overwrite changed files
-            foreach (var remoteFile in remoteFiles) {
+            foreach (var remoteFile in remoteFiles.Values) {
                 LocalFileInfo localFile;
-                var key = remoteFile.obj.Key;
+                var key = remoteFile.Key;
                 localFiles.TryGetValue(key, out localFile);
                 if (localFile != null) {
                     Console.WriteLine("Key needs update: {0}", key);
+                    upload_file(client, localFile, bucketName);
                 }
             }
 
             // Step 3: Delete files that have been removed
-            foreach (var remoteFile in remoteFiles) {
+            foreach (var remoteFile in remoteFiles.Values) {
                 LocalFileInfo localFile;
-                var key = remoteFile.obj.Key;
+                var key = remoteFile.Key;
                 localFiles.TryGetValue(key, out localFile);
                 if (localFile == null) {
                     Console.WriteLine("Key needs delete: {0}", key);
-                    remoteFile.needs_delete = true;
                 }
             }
         }
 
+        static void upload_file(AmazonS3Client client, LocalFileInfo localFile, String bucketName)
+        {
+            var putRequest = new PutObjectRequest {
+                BucketName = bucketName,
+                Key = localFile.RelativePath,
+                FilePath = localFile.FullLocalPath,
+                ContentType = localFile.ContentType
+            };
+            putRequest.Headers.CacheControl = localFile.CacheControl;
+
+            PutObjectResponse response = client.PutObjectAsync(putRequest).Result;
+        }
+
+        // Scan all files in a local directory.
+        // Return: path (relative to rootPath) -> object info
         static Dictionary<string, LocalFileInfo> ListLocalDirectory(string rootPath) 
         {
             var ret = new Dictionary<string, LocalFileInfo>();
@@ -116,30 +131,26 @@ namespace SyncS3
             return ret;
         }
 
-        // Iterate all objects in the S3 bucket.
-        // If an object is identical, mark it as not needing upload.
-        // If an object is no longer needed, mark it for deletion.
-        static List<RemoteFileInfo> ScanBucket(AmazonS3Client client, string bucketName)
+        // Scan all objects in the S3 bucket.
+        // Return: key (string) -> object info
+        static Dictionary<String, S3Object> ScanBucket(AmazonS3Client client, string bucketName)
         {
             ListObjectsV2Request request = new ListObjectsV2Request {
                 BucketName = bucketName,
                 MaxKeys = 1000
             };
             ListObjectsV2Response response;
-            var ret = new List<RemoteFileInfo>();
+            var ret = new Dictionary<String, S3Object>();
 
             do {
                 response = client.ListObjectsV2Async(request).Result;
 
-                // Process the response.
                 foreach (S3Object entry in response.S3Objects) {
                     Trace.Assert(!entry.Key.StartsWith("/"));
-                    Console.WriteLine("key = {0} size = {1}",
-                        entry.Key, entry.Size);
-                    
-                    var remoteInfo = new RemoteFileInfo { obj = entry };
-                    ret.Add(remoteInfo);
+                    Console.WriteLine("key = {0} size = {1}", entry.Key, entry.Size);
+                    ret.Add(entry.Key, entry);
                 }
+
                 Console.WriteLine("Next Continuation Token: {0}", response.NextContinuationToken);
                 request.ContinuationToken = response.NextContinuationToken;
             } while (response.IsTruncated);
