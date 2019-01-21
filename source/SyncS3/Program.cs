@@ -15,18 +15,20 @@ namespace SyncS3
     class LocalFileInfo {
         public LocalFileInfo(string path, string rootPath) {
             Trace.Assert(path.StartsWith(rootPath));
-            relativePath = path.Substring(rootPath.Length);
-            relativePath = relativePath.TrimStart('/');
-            fullPath = path;
-            contentType = GetContentType(path);
+            RelativePath = path.Substring(rootPath.Length);
+            RelativePath = RelativePath.TrimStart('/');
+            Trace.Assert(!RelativePath.StartsWith("/"));
+            Trace.Assert(!String.IsNullOrWhiteSpace(RelativePath));
+            FullLocalPath = path;
+            ContentType = GetContentType(path);
         }
 
         // NB: Does not start with /
-        public string relativePath;
+        public string RelativePath { get; }
 
-        public string contentType;
+        public string ContentType { get; }
 
-        public string fullPath;
+        public string FullLocalPath { get; }
 
         // All file types on our site.  Simple and consistent - no MIME sniffing.
         static string GetContentType(string path) {
@@ -65,11 +67,33 @@ namespace SyncS3
             // NB: Region must be in the *credentials* file, not the config.
             // The .NET SDK only looks at one file, apparently.
             var client = new AmazonS3Client();
+
             var localFiles = ListLocalDirectory(rootPath);
             var remoteFiles = ScanBucket(client, bucketName);
 
             var remoteKeysProcessed = new HashSet<String>();
+            foreach (var remoteFile in remoteFiles) {
+                remoteKeysProcessed.Add(remoteFile.obj.Key);
+            }
 
+            // Step 1: Upload new files
+            foreach (var localFile in localFiles.Values) {
+                if (!remoteKeysProcessed.Contains(localFile.RelativePath)) {
+                    Console.WriteLine("New file needs upload: {0}", localFile.RelativePath);
+                }
+            }
+
+            // Step 2: Overwrite changed files
+            foreach (var remoteFile in remoteFiles) {
+                LocalFileInfo localFile;
+                var key = remoteFile.obj.Key;
+                localFiles.TryGetValue(key, out localFile);
+                if (localFile != null) {
+                    Console.WriteLine("Key needs update: {0}", key);
+                }
+            }
+
+            // Step 3: Delete files that have been removed
             foreach (var remoteFile in remoteFiles) {
                 LocalFileInfo localFile;
                 var key = remoteFile.obj.Key;
@@ -77,16 +101,6 @@ namespace SyncS3
                 if (localFile == null) {
                     Console.WriteLine("Key needs delete: {0}", key);
                     remoteFile.needs_delete = true;
-                } else {
-                    Console.WriteLine("Key needs update: {0}", key);
-                    remoteFile.needs_upload = true;
-                }
-                remoteKeysProcessed.Add(key);
-            }
-
-            foreach (var localFile in localFiles.Values) {
-                if (!remoteKeysProcessed.Contains(localFile.relativePath)) {
-                    Console.WriteLine("New file needs upload: {0}", localFile.relativePath);
                 }
             }
         }
@@ -96,8 +110,8 @@ namespace SyncS3
             var ret = new Dictionary<string, LocalFileInfo>();
             foreach (var f in Directory.EnumerateFiles(rootPath, "*", SearchOption.AllDirectories)) {
                 var info = new LocalFileInfo(f, rootPath);
-                Console.WriteLine("File {0}", info.relativePath);
-                ret.Add(info.relativePath, info);
+                Console.WriteLine("File {0}", info.RelativePath);
+                ret.Add(info.RelativePath, info);
             }
             return ret;
         }
