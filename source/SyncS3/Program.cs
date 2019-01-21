@@ -76,7 +76,7 @@ namespace SyncS3
 
     public class Program
     {
-        // Usage: dotnet run -- /root/path BucketName
+        // Usage: dotnet run -- /root/path BucketName [--dry-run]
         //
         // Simple S3 sync tool. 
         // We don't even have to gzip compress because cloudfront does it
@@ -86,6 +86,16 @@ namespace SyncS3
         {
             var rootPath = args[0];
             var bucketName = args[1];
+            var extra_args = args.Skip(2).ToList();
+            bool dry_run = false;
+
+            foreach (var arg in extra_args) {
+                if (arg == "--dry-run") {
+                    dry_run = true;
+                } else {
+                    throw new Exception($"Unknown option: ${arg}");
+                }
+            }
 
             // NB: Region must be in the *credentials* file, not the config.
             // The .NET SDK only looks at one file, apparently.
@@ -99,7 +109,9 @@ namespace SyncS3
             foreach (var localFile in localFiles.Values) {
                 if (!remoteFiles.ContainsKey(localFile.RelativePath)) {
                     Console.WriteLine("New file needs upload: {0}", localFile.RelativePath);
-                    upload_file(client, localFile, bucketName);
+                    if (!dry_run) {
+                        upload_file(client, localFile, bucketName);
+                    }
                 }
             }
 
@@ -111,7 +123,9 @@ namespace SyncS3
                 if (localFile != null) {
                     if (localFile.MD5Checksum.ToLower() != remoteFile.ETag.ToLower().Trim('"')) {
                         Console.WriteLine("Key needs update: {0}", key);
-                        upload_file(client, localFile, bucketName);
+                        if (!dry_run) {
+                            upload_file(client, localFile, bucketName);
+                        }
                     } else {
                         Console.WriteLine("Key unchanged: {0}", key);
                     }
@@ -125,7 +139,9 @@ namespace SyncS3
                 localFiles.TryGetValue(key, out localFile);
                 if (localFile == null) {
                     Console.WriteLine("Key needs delete: {0}", key);
-                    delete_file(client, key, bucketName);
+                    if (!dry_run) {
+                        delete_file(client, key, bucketName);
+                    }
                 }
             }
         }
