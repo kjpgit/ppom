@@ -21,12 +21,15 @@ namespace SyncS3
             Trace.Assert(!String.IsNullOrWhiteSpace(RelativePath));
             FullLocalPath = path;
             ContentType = GetContentType(path);
+            MD5Checksum = GetMd5Hash(path);
         }
 
         // NB: Does not start with /
         public string RelativePath { get; }
 
         public string ContentType { get; }
+
+        public string MD5Checksum { get; }
 
         public string FullLocalPath { get; }
 
@@ -57,9 +60,21 @@ namespace SyncS3
                     throw new Exception($"Unknown file extension: {path}");
             }
         }
+
+        static string GetMd5Hash(string filePath)
+        {
+            var md5Hash = System.Security.Cryptography.MD5.Create();
+            byte[] data = md5Hash.ComputeHash(File.ReadAllBytes(filePath));
+
+            var sBuilder = new System.Text.StringBuilder();
+            for (int i = 0; i < data.Length; i++) {
+                sBuilder.Append(data[i].ToString("x2"));
+            }
+            return sBuilder.ToString();
+        }
     }
 
-    class Program
+    public class Program
     {
         // Usage: dotnet run -- /root/path BucketName
         static void Main(string[] args)
@@ -89,8 +104,12 @@ namespace SyncS3
                 var key = remoteFile.Key;
                 localFiles.TryGetValue(key, out localFile);
                 if (localFile != null) {
-                    Console.WriteLine("Key needs update: {0}", key);
-                    upload_file(client, localFile, bucketName);
+                    if (localFile.MD5Checksum.ToLower() != remoteFile.ETag.ToLower().Trim('"')) {
+                        Console.WriteLine("Key needs update: {0}", key);
+                        upload_file(client, localFile, bucketName);
+                    } else {
+                        Console.WriteLine("Key unchanged: {0}", key);
+                    }
                 }
             }
 
@@ -101,6 +120,7 @@ namespace SyncS3
                 localFiles.TryGetValue(key, out localFile);
                 if (localFile == null) {
                     Console.WriteLine("Key needs delete: {0}", key);
+                    delete_file(client, key, bucketName);
                 }
             }
         }
@@ -116,6 +136,16 @@ namespace SyncS3
             putRequest.Headers.CacheControl = localFile.CacheControl;
 
             PutObjectResponse response = client.PutObjectAsync(putRequest).Result;
+        }
+
+        static void delete_file(AmazonS3Client client, String key, String bucketName)
+        {
+             var deleteObjectRequest = new DeleteObjectRequest {
+                    BucketName = bucketName,
+                    Key = key
+                };
+
+            DeleteObjectResponse response = client.DeleteObjectAsync(deleteObjectRequest).Result;
         }
 
         // Scan all files in a local directory.
