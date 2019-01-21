@@ -77,6 +77,11 @@ namespace SyncS3
     public class Program
     {
         // Usage: dotnet run -- /root/path BucketName
+        //
+        // Simple S3 sync tool. 
+        // We don't even have to gzip compress because cloudfront does it
+        // automatically for the correct content types (e.g. html, css, js).
+        // 
         static void Main(string[] args)
         {
             var rootPath = args[0];
