@@ -3,42 +3,45 @@ using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading;
 
 namespace ppom
 {
+    // This class is immutable.
     public class BlogPost {
         public BlogPost(string year, string path) {
-            this.year = year;
+            this.Year = year;
 
             string data = File.ReadAllText(path);
             var data_lines = new List<String>();
             bool in_data = false;
+            var metadata = new Dictionary<String, String>();
             foreach (var line in data.Split('\n')) {
                 if (!in_data && line.Contains(":")) {
                     var vals = line.Split(":", 2);
-                    this.metadata[vals[0].Trim()] = vals[1].Trim();
+                    metadata[vals[0].Trim()] = vals[1].Trim();
                 } else {
                     in_data = true;
                     data_lines.Add(line);
                 }
             }
 
-            this.markdownText = String.Join("\n", data_lines);
-
-            this.path = "/blog/" + year + "/" + GetFSTitle() + ".html";
+            this.Metadata = new ReadOnlyDictionary<string, string>(metadata);
+            this.MarkdownText = String.Join("\n", data_lines);
+            this.Path = "/blog/" + year + "/" + GetFSTitle() + ".html";
         }
 
-        public String Title => metadata["Title"];
+        public String Title => Metadata["Title"];
 
         public bool IsDraft() {
-            string status = this.metadata.GetValueOrDefault("Status", "ok");
+            string status = this.Metadata.GetValueOrDefault("Status", "ok");
             return (status.ToLower() == "draft");
         }
 
         public string GetFSTitle() {
-            string title = this.metadata["Title"].ToLowerInvariant();
+            string title = this.Metadata["Title"].ToLowerInvariant();
             title = title.Replace(" ", "-");
             title = title.Replace(".", "");
             title = title.Replace("!", "");
@@ -51,10 +54,10 @@ namespace ppom
             return title;
         }
 
-        public Dictionary<string, string> metadata = new Dictionary<string, string>();
-        public string path;
-        public string year;
-        public string markdownText;
+        public string Path { get; }
+        public string Year { get; }
+        public string MarkdownText { get; }
+        public ReadOnlyDictionary<string, string> Metadata { get; }
     }
 
     public class BlogArchiveYear {

@@ -124,7 +124,7 @@ namespace ppom
                 Directory.CreateDirectory(getOutputDir("/blog/" + yearList.year));
                 foreach (var post in yearList.posts) {
                     result = runTemplate("blog", post, viewBag);
-                    path = getOutputDir(post.path);
+                    path = getOutputDir(post.Path);
                     File.WriteAllText(path, result);
                 }
             }
