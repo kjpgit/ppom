@@ -4,7 +4,9 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
+using System.Text;
 using System.Threading;
+using System.Security.Cryptography;
 
 using RazorLight;
 
@@ -57,8 +59,21 @@ namespace ppom
             return this.buildDirectory + "/" + path;
         }
 
-        public String GetCacheBust() {
-            return "ABCDEFG";
+        public String GetHashedFileName(String path) {
+            string md5string = GetMd5Hash(getOutputDir(path));
+            return Path.GetDirectoryName(path) + "/" + md5string + "-" + Path.GetFileName(path);
+        }
+
+        static string GetMd5Hash(string filePath)
+        {
+            MD5 md5Hash = MD5.Create();
+            byte[] data = md5Hash.ComputeHash(File.ReadAllBytes(filePath));
+
+            var sBuilder = new StringBuilder();
+            for (int i = 0; i < data.Length; i++) {
+                sBuilder.Append(data[i].ToString("x2"));
+            }
+            return sBuilder.ToString();
         }
 
         public void create_directories() {
@@ -230,7 +245,7 @@ namespace ppom
 
         private ExpandoObject GetViewBag() {
             dynamic viewBag = new ExpandoObject();
-            viewBag.CacheBust = GetCacheBust();
+            viewBag.SiteGenerator = this;
             viewBag.FileData = fileData;
             return viewBag;
         }

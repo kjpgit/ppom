@@ -1,3 +1,7 @@
+@{
+    var MAIN_CSS = ViewBag.SiteGenerator.GetHashedFileName("/include/main.css");
+    var MYCART_JS = ViewBag.SiteGenerator.GetHashedFileName("/include/mycart.js");
+}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,7 +19,7 @@
 
   <link rel="stylesheet" href="/include/xzoom.css">
 
-  <link rel="stylesheet" href="/include/main.css?cachebust=@ViewBag.CacheBust">
+  <link rel="stylesheet" href="@MAIN_CSS">
 
   <link rel="stylesheet" href="/include/pswp/photoswipe.css"> 
   <link rel="stylesheet" href="/include/pswp/default-skin/default-skin.css"> 
@@ -85,7 +89,7 @@
 <script src="/include/pswp/photoswipe.min.js"></script> 
 <script src="/include/pswp/photoswipe-ui-default.min.js"></script> 
 
-<script src="/include/mycart.js?cachebust=@ViewBag.CacheBust"></script>
+<script src="/include/@MYCART_JS"></script>
 
 <script>
 
