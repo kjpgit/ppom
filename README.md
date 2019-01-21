@@ -5,7 +5,7 @@ Source code for https://www.patternedpom.com (my wife's ecommerce site)
 
 ## Tech Stack
 
-* C# / .NET Core 2.2 
+* C# / .NET Core 2.2 (On Linux)
 
 * RazorLight for [page templates](source/SiteBuilder/templates/)
 
