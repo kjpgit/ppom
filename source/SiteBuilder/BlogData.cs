@@ -2,10 +2,8 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Threading;
 
 namespace ppom
 {
@@ -41,7 +39,7 @@ namespace ppom
         }
 
         public string GetFSTitle() {
-            string title = this.Metadata["Title"].ToLowerInvariant();
+            string title = this.Title.ToLowerInvariant();
             title = title.Replace(" ", "-");
             title = title.Replace(".", "");
             title = title.Replace("!", "");
@@ -60,40 +58,30 @@ namespace ppom
         public ReadOnlyDictionary<string, string> Metadata { get; }
     }
 
-    public class BlogArchiveYear {
-        public BlogArchiveYear(string year) {
-            this.year = year;
-        }
-
-        public string year;
-        public List<BlogPost> posts = new List<BlogPost>();
-    }
-
-    public class BlogArchive {
-        public List<BlogArchiveYear> years = new List<BlogArchiveYear>();
-    }
-
-    public class BlogData {
+    // A collection of blog posts.
+    // This class is immutable.
+    public class BlogData 
+    {
         public BlogData(string rootPath) {
             this.rootPath = rootPath;
-            BlogArchive = new BlogArchive();
+            blogPosts = new List<BlogPost>();
 
-            foreach (var year_dir in Directory.GetDirectories(rootPath).OrderBy(p => p)) {
+            foreach (var year_dir in Directory.GetDirectories(rootPath)) {
                 string year = Path.GetFileName(year_dir);
-                BlogArchive.years.Add(new BlogArchiveYear(year));
                 foreach (var blog_file in Directory.GetFiles(year_dir)) {
                     if (blog_file.ToLower().EndsWith(".md")) {
                         var post = new BlogPost(year, blog_file);
                         if (!post.IsDraft()) {
-                            BlogArchive.years.Last().posts.Add(post);
+                            blogPosts.Add(post);
                         }
                     }
                 }
             }
         }
 
-        public BlogArchive BlogArchive { get; }
+        public IList<BlogPost> Posts => blogPosts.AsReadOnly();
+
+        private List<BlogPost> blogPosts;
         private string rootPath;
     }
-
 }

@@ -1,19 +1,24 @@
-@model ppom.BlogArchive
+@model IList<ppom.BlogPost>
 @{
     ViewBag.Title = "Patterned Pomegranate: Blog Archive";
     ViewBag.PageId = "blogArchivePage";
     Layout = "layout.cshtml";
+    var YearGroups = 
+        from post in Model 
+        group post by post.Year into g
+        orderby g.Key descending
+        select g ;
 }
 
-<h1 style="text-align: left" class="shop-page-title">Blog Archive</h1>
+<h1>Blog Archive</h1>
 
-@foreach (var yearList in Model.years.OrderByDescending(x => x.year)) {
+@foreach (var yearGroup in YearGroups) {
 
-    <h2>@yearList.year</h2>
+    <h2>@yearGroup.Key</h2>
 
     <ul>
 
-    @foreach (var post in yearList.posts.OrderBy(x => x.Title)) {
+    @foreach (var post in yearGroup.OrderBy(x => x.Title)) {
 
         <li>
             <a href="@post.Path">@post.Title</a>

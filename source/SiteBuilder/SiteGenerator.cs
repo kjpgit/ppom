@@ -116,17 +116,14 @@ namespace ppom
         public void generate_blog(BlogData blogData) {
             dynamic viewBag = GetViewBag();
 
-            string result = runTemplate("blog-archive", blogData.BlogArchive, viewBag);
+            string result = runTemplate("blog-archive", blogData.Posts, viewBag);
             string path = getOutputDir("blog/index.html");
             File.WriteAllText(path, result);
 
-            foreach (var yearList in blogData.BlogArchive.years) {
-                Directory.CreateDirectory(getOutputDir("/blog/" + yearList.year));
-                foreach (var post in yearList.posts) {
-                    result = runTemplate("blog", post, viewBag);
-                    path = getOutputDir(post.Path);
-                    File.WriteAllText(path, result);
-                }
+            foreach (var post in blogData.Posts) {
+                result = runTemplate("blog", post, viewBag);
+                path = getOutputDir(post.Path);
+                File.WriteAllText(path, result);
             }
         }
 

@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using System.Text.RegularExpressions;
 
 using SixLabors.ImageSharp;
@@ -95,10 +94,17 @@ namespace ppom
             return ProcessMarkdownWithMacros(text);
         }
 
+        // NB: Called by templates
         public string GetMarkdownHTML(String logicalPath) {
             string path = rootPath + "/" + logicalPath;
             string text = File.ReadAllText(path);
             return ProcessMarkdownWithMacros(text);
+        }
+
+        // NB: Called by blog template
+        public string ProcessMarkdownWithMacros(string text) {
+            text = ExpandMacros(text);
+            return MarkdownEngine.MarkdownToHtml(text);
         }
 
         public IList<String> GetImagePaths(Product product)
@@ -131,11 +137,6 @@ namespace ppom
             //if (path.EndsWith(".png"))
              //   return true;
             return false;
-        }
-
-        public string ProcessMarkdownWithMacros(string text) {
-            text = ExpandMacros(text);
-            return MarkdownEngine.MarkdownToHtml(text);
         }
 
         private string rootPath;
