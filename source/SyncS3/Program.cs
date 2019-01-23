@@ -117,9 +117,8 @@ namespace SyncS3
 
             // Step 2: Overwrite changed files
             foreach (var remoteFile in remoteFiles.Values) {
-                LocalFileInfo localFile;
                 var key = remoteFile.Key;
-                localFiles.TryGetValue(key, out localFile);
+                localFiles.TryGetValue(key, out LocalFileInfo localFile);
                 if (localFile != null) {
                     if (localFile.MD5Checksum.ToLower() != remoteFile.ETag.ToLower().Trim('"')) {
                         Console.WriteLine("Key needs update: {0}", key);
@@ -134,9 +133,8 @@ namespace SyncS3
 
             // Step 3: Delete files that have been removed
             foreach (var remoteFile in remoteFiles.Values) {
-                LocalFileInfo localFile;
                 var key = remoteFile.Key;
-                localFiles.TryGetValue(key, out localFile);
+                localFiles.TryGetValue(key, out LocalFileInfo localFile);
                 if (localFile == null) {
                     Console.WriteLine("Key needs delete: {0}", key);
                     if (!dry_run) {
