@@ -65,15 +65,15 @@ ol {
     text-align: right;
 }
 blockquote {
-    background-color: #f7f7f7;
     font-family: @accent_font_serif;
     font-size: 16px;
-    padding: 15px 20px 15px 38px;
+    background-color: #f7f7f7;
+    padding: 10px 20px;
     margin: 0 0 30px 0;
     box-shadow: 2px 2px 15px #ccc;
     position: relative;
 }
-blockquote:before{
+xxxblockquote:before{
   content: "\201C"; /*Unicode for Left Double Quote*/
   
   /*Font*/
@@ -391,15 +391,18 @@ a.viewall {
     color: green;
     background-color: yellow;
 }
-#blogPage .blog-post img {
+#blogPage .blog-post img:not(.fullwidth) {
     float: right;
     xbox-shadow: 2px 2px 15px #ccc;
     margin-left: 10px;
     margin-bottom: 10px;
     max-width: 50%;
 }
-#blogPage .blog-post {
-    xxxborder: 1px dotted blue;
+#blogPage .blog-post img.fullwidth {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 15px;
 }
 #blogPage .sidebar-etsy {
     text-align: center;
