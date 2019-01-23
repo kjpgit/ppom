@@ -206,35 +206,28 @@ a.viewall {
 }
 
 
-// Titles
+// Titles.
+// All pages but listingPage are here.
 #aboutPage h1,
 #blogArchivePage h1,
 #blogPage h1,
 #cartPage h1,
 #categoryPage h1,
 #errorPage h1,
+#frontPage h1,
 #receiptPage h1
 {
-    margin-top: 20px;
     font-family: @accent_font_script;
     font-size: 44px;
     text-align: center;
-    margin-bottom: 10px;
-}
-
-#blogArchivePage h1,
-#blogPage h1
-{
-    text-align: left;
+    margin-top: 30px;
+    margin-bottom: 15px;
 }
 
 
 // Main Page
 #frontPage h1 {
-    margin-top: 30px;
-    font-family: @accent_font_script;
-    font-size: 44px;
-    text-align: center;
+    //margin-bottom: 10px;
 }
 #frontPage h2 {
     font-family: @accent_font_sans;
@@ -254,6 +247,9 @@ a.viewall {
 
 
 // Category page
+#categoryPage h1 {
+    margin-top: 20px;
+}
 #categoryPage .category-description {
     margin-top: 10px;
     margin-bottom: 10px;
@@ -286,8 +282,10 @@ a.viewall {
 
 // Listing (product detail page)
 #listingPage h1 {
-    margin-top: 0;
     font-family: @accent_font_serif;
+    font-size: 36px;
+    margin-top: 0;
+    margin-bottom: 15px;
 }
 #listingPage .product-gallery {
     margin-bottom: 20px;
@@ -350,13 +348,6 @@ a.viewall {
 
 
 /* about page */
-#aboutPage .bio-caption {
-    font-size: 20px;
-    font-family: @accent_font_serif;
-    margin-top: 20px;
-    margin-bottom: 10px;
-    text-align: center;
-}
 #aboutPage h2 {
     font-family: @accent_font_script;
     font-size: 28px;
@@ -371,24 +362,18 @@ a.viewall {
     letter-spacing: 1px;
     color: @accent_color;
 }
+#aboutPage .bio-caption {
+    font-size: 20px;
+    font-family: @accent_font_serif;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    text-align: center;
+}
 
 
 /* Blog pages */
-#blogPage .blog-post img {
-    float: right;
-    xbox-shadow: 2px 2px 15px #ccc;
-    margin-left: 10px;
-    margin-bottom: 10px;
-    max-width: 50%;
-}
-#blogPage .blog-post {
-    xxxborder: 1px dotted blue;
-}
 #blogPage h1 {
-    font-size: 45px;
-    padding-top: 20px;
-    padding-bottom: 10px;
-    margin-bottom: 30px;
+    text-align: left;
 }
 #blogPage h2 {
     font-family: @accent_font_serif;
@@ -406,11 +391,26 @@ a.viewall {
     color: green;
     background-color: yellow;
 }
+#blogPage .blog-post img {
+    float: right;
+    xbox-shadow: 2px 2px 15px #ccc;
+    margin-left: 10px;
+    margin-bottom: 10px;
+    max-width: 50%;
+}
+#blogPage .blog-post {
+    xxxborder: 1px dotted blue;
+}
 #blogPage .sidebar-etsy {
     text-align: center;
 }
 #blogPage .sidebar-etsy h2 a {
     color: #333;
+}
+
+
+#blogArchivePage h1 {
+    text-align: left;
 }
 
 
