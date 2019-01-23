@@ -42,6 +42,6 @@ clean:
 	rm -rf $(BUILD_DIR) $(PROD_DIR)
 
 serve:
-	twistd -n web -p tcp:8000 --path $(BUILD_DIR)
+	twistd -n --pidfile="" web -p tcp:8000 --path $(BUILD_DIR) 
 
 all: download build
