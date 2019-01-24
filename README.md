@@ -15,8 +15,9 @@ Source code for https://www.patternedpom.com (my wife's ecommerce site)
 
 * Payment Processing: Paypal
 
-* Content Management: Google Spreadsheet, local directories of images and
-  CommonMark markdown files.  Ghostwriter for CommonMark WYSIWYG editing.
+* Google Spreadsheets .NET SDK for [fetching product listing data](source/GoogleSpreadsheetData/GoogleSheets.cs)
+
+* Markdig for CommonMark Markdown processing.  Ghostwriter for CommonMark WYSIWYG editing.
 
 * Hosting: AWS CloudFront, S3, Lambda.   It's mostly a static site, for super cheap hosting.
 
@@ -26,6 +27,8 @@ Source code for https://www.patternedpom.com (my wife's ecommerce site)
 ## History
 
 I rewrote this in 2019 to use C# instead of Python.  I'm very frustrated by
-Python these days - it's great for small scripts but terrible for large or
-mission critical applications.  And I'm very excited about using C# on Linux,
-now that Microsoft is officially supporting it.  It is very pleasant to use.
+Python these days - it's great for small scripts but terrible when refactoring
+large or mission critical applications.  
+
+I'm very excited about using C# on Linux, now that Microsoft is officially
+supporting it.  It was very pleasant to use on this project!
