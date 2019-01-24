@@ -2,8 +2,11 @@
 
 @accent_color: #ea118c;  // pink
 
+@font_family_normal_text: 'Verdana', sans-serif;
+@font_family_reading_text: 'Merriweather', Georgia, serif;
+
 @accent_font_script: 'Dancing Script', cursive;
-@accent_font_serif: Georgia, serif;
+@accent_font_serif: 'Merriweather', Georgia, serif;
 @accent_font_sans: Verdana, sans-serif;
 
 
@@ -22,19 +25,47 @@ a, .linkstyle {
 
 // General Page Style
 body {
-    margin-bottom: 7em;
+    font-family: @font_family_normal_text;
+    font-size: 16px;
+    line-height: 1.5;
 
     /* otherwise fonts are way too bold on mac */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
+    margin-bottom: 7em;
 }
-p, ul {
-    // 20 px is the default line height
-    margin-bottom: 20px;
+
+// Titles.
+// All pages but listingPage are here.
+#aboutPage h1,
+#blogArchivePage h1,
+#blogPage h1,
+#cartPage h1,
+#categoryPage h1,
+#errorPage h1,
+#frontPage h1,
+#receiptPage h1
+{
+    font-family: @accent_font_script;
+    font-size: 48px;
+    text-align: center;
 }
-p + ul {
-    margin-top: -15px;
+
+h1, h2, h3, h4, h5, h6 {
+    margin-top: .6em;
+    margin-bottom: .3em;
 }
+
+
+p, ul, ol {
+    margin-bottom: 1.2em;
+}
+// ensure a list doesn't start with a huge gap
+p + ul, p + ol {
+    margin-top: -.7em;
+}
+
 ul {
     list-style: none;
     padding-left: 1.5em;
@@ -49,9 +80,21 @@ ul li:before {
 ul.NOSTYLE li:before {
     content: "";
 }
+
 ol {
-    padding-left: 1.5em;
+    padding-left: 1.5em; // match ul
 }
+
+// For both ordered and unordered lists
+li {
+    margin-bottom: .5em;
+}
+// ensure a "loose" markdown list (e.g. has paragraphs) doesn't have extra margin between items
+li > p:last-child {
+    margin-bottom: 0;
+}
+
+
 .text-medium {
     font-size: 18px;
 }
@@ -64,29 +107,15 @@ ol {
 .align-right {
     text-align: right;
 }
+
 blockquote {
-    font-family: @accent_font_serif;
-    font-size: 16px;
+    font-size: 1em;
     background-color: #f7f7f7;
     padding: 10px 20px;
     margin: 0 0 30px 0;
     box-shadow: 2px 2px 15px #ccc;
-    position: relative;
 }
-xxxblockquote:before{
-  content: "\201C"; /*Unicode for Left Double Quote*/
-  
-  /*Font*/
-  font-family: Georgia, serif;
-  font-size: 50px;
-  font-weight: bold;
-  color: #d0cdcd;
-  
-  /*Positioning*/
-  position: absolute;
-  left: 5px;
-  top:-5px;
-}
+
 .listing-footnote {
     background-color: #f7f7f7;
     padding: 10px 20px;
@@ -101,7 +130,7 @@ button, input[type=button], input[type=submit], input[type=reset] {
     background-color: @accent_color;
 
     font-size: 14px;
-    font-family: verdana, sans-serif;
+    font-family: @accent_font_sans;
     text-decoration: none;
     padding: 6px 12px;
     border: 1px solid darken(@accent_color, 25%);
@@ -129,25 +158,6 @@ select {
 input.addCart {
     margin-top: 7px;
 }
-
-
-// Unused
-a.viewall {
-    font-size: 16px;
-    padding: 7px 15px 7px 15px;
-    background-color: #f7f7f7;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    display: inline-block;
-    margin-bottom: 20px;
-    &::after {
-        content: " \0BB";
-    }
-    &:hover {
-        background-color: #f7f7f7 - #111;
-    }
-}
-
 
 
 // Logo, navbar 
@@ -206,43 +216,19 @@ a.viewall {
 }
 
 
-// Titles.
-// All pages but listingPage are here.
-#aboutPage h1,
-#blogArchivePage h1,
-#blogPage h1,
-#cartPage h1,
-#categoryPage h1,
-#errorPage h1,
-#frontPage h1,
-#receiptPage h1
-{
-    font-family: @accent_font_script;
-    font-size: 44px;
-    text-align: center;
-    margin-top: 30px;
-    margin-bottom: 15px;
-}
-
-
 // Main Page
-#frontPage h1 {
-    //margin-bottom: 10px;
-}
 #frontPage h2 {
     font-family: @accent_font_sans;
-    //font-weight: normal;
     font-size: 26px;
     text-align: center;
-}
-#frontPage .article p {
-    line-height: 125%;
-    font-size: 16px;
-    font-family: @accent_font_serif;
 }
 #frontPage .front-img {
     max-width: 100%;
     margin-bottom: 20px;
+}
+// NB: for the main description
+#frontPage .article p {
+    font-family: @accent_font_serif;
 }
 
 
@@ -251,11 +237,7 @@ a.viewall {
     margin-top: 20px;
 }
 #categoryPage .category-description {
-    margin-top: 10px;
-    margin-bottom: 10px;
     font-family: @accent_font_serif;
-    font-weight: normal;
-    font-size: 16px;
     text-align: center;
 }
 #categoryPage .subcategory-header {  
@@ -285,7 +267,7 @@ a.viewall {
     font-family: @accent_font_serif;
     font-size: 36px;
     margin-top: 0;
-    margin-bottom: 15px;
+    margin-bottom: .5em;
 }
 #listingPage .product-gallery {
     margin-bottom: 20px;
@@ -301,7 +283,7 @@ a.viewall {
 #listingPage .product-description h2
 {
     font-family: @accent_font_script;
-    font-size: 22px;
+    font-size: 28px;
 }
 #listingPage img.xzoom-gallery {
     max-height: 100px;
@@ -350,17 +332,16 @@ a.viewall {
 /* about page */
 #aboutPage h2 {
     font-family: @accent_font_script;
-    font-size: 28px;
+    font-size: 32px;
     text-align: center;
     padding: 10px;
     border-bottom: 2px dotted @accent_color;
-    margin-bottom: 17px;
 }
 #aboutPage h3 {
-    font-size: 14px;
+    font-size: 16px;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: @accent_color;
+    font-weight: bold;
 }
 #aboutPage .bio-caption {
     font-size: 20px;
@@ -372,18 +353,25 @@ a.viewall {
 
 
 /* Blog pages */
+#blogPage .blog-post {
+    font-family: @font_family_reading_text;
+    font-size: 17px;
+    line-height: 1.8;
+}
 #blogPage h1 {
     text-align: left;
 }
 #blogPage h2 {
-    font-family: @accent_font_serif;
+    font-family: @accent_font_sans;
 }
 #blogPage h3 {
     font-family: @accent_font_sans;
-    font-size: 14px;
+    font-weight: bold;
+    font-size: 18px;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: @accent_color;
+    margin-top: 2em;
+    margin-bottom: 1em;
 }
 #blogPage h4,
 #blogPage h5,
@@ -391,32 +379,32 @@ a.viewall {
     color: green;
     background-color: yellow;
 }
-#blogPage .blog-post img:not(.header) {
+
+#blogPage .blog-post img {
     float: right;
     max-width: 50%;
     margin-left: 10px;
-    margin-bottom: 10px;
-}
-#blogPage .blog-post img.header {
-    display: block;
-    max-width: 100%;
-    height: auto;
     margin-bottom: 20px;
 }
 #blogPage .blog-post img.centered {
-    float: none;
     display: block;
+    float: none;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 20px;
+}
+#blogPage .blog-post img.centered-skinny {
+    display: block;
+    float: none;
     max-width: 50%;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 15px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
+
 #blogPage .sidebar-etsy {
     text-align: center;
-}
-#blogPage .sidebar-etsy h2 a {
-    color: #333;
 }
 
 
