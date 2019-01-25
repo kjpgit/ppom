@@ -1,6 +1,6 @@
 ## Overview
 
-Paypal IPN handling.
+Paypal IPN (Instant Payment Notification) handling.  Used for immediate emails of digital purchases.
 
 Based off of their example AWS code https://github.com/paypal/ipn-code-samples/blob/master/aws/paypal-ipn-cloudformation.yml,
 but changed to use C# instead of ancient python 2.7, and proper POST of the message.
