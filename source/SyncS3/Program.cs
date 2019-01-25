@@ -173,6 +173,9 @@ namespace SyncS3
         {
             var ret = new Dictionary<string, LocalFileInfo>();
             foreach (var f in Directory.EnumerateFiles(rootPath, "*", SearchOption.AllDirectories)) {
+                if (f.EndsWith(".swp")) {
+                    continue;
+                }
                 var info = new LocalFileInfo(f, rootPath);
                 Console.WriteLine("File {0}", info.RelativePath);
                 ret.Add(info.RelativePath, info);
