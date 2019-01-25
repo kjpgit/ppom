@@ -1,0 +1,30 @@
+[
+  {
+    "ParameterKey": "LambdaReceiverARN",
+    "ParameterValue": "arn:aws:lambda:us-east-1:757437486362:function:PaypalReceiverLambdaTest"
+  }, 
+  {
+    "ParameterKey": "LambdaVerifierARN",
+    "ParameterValue": "arn:aws:lambda:us-east-1:757437486362:function:PaypalVerifierLambdaTest"
+  }, 
+  {
+    "ParameterKey": "InternalNotificationName",
+    "ParameterValue": "unverified-ipn-test"
+  }, 
+  {
+    "ParameterKey": "DeliveryQueueName",
+    "ParameterValue": "verified-ipn-test"
+  },
+  {
+    "ParameterKey": "TimeoutQueueName",
+    "ParameterValue": "timeout-ipn-test"
+  },
+  {
+    "ParameterKey": "ErrorQueueName",
+    "ParameterValue": "errors-ipn-test"
+  },
+  {
+    "ParameterKey": "VerifyURL",
+    "ParameterValue": "https://ipnpb.sandbox.paypal.com/cgi-bin/webscr"
+  }
+]

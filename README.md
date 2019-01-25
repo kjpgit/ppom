@@ -13,13 +13,13 @@ Source code for https://www.patternedpom.com (my wife's ecommerce site)
 
 * Shopping Cart: Vanilla.js, LocalStorage 
 
-* Payment Processing: Paypal
+* Payment Processing: Paypal IPN, Lambda, SNS, SQS
 
 * Google Spreadsheets .NET SDK for [fetching product listing data](source/GoogleSpreadsheetData/GoogleSheets.cs)
 
 * Markdig for CommonMark Markdown processing.  Ghostwriter for CommonMark WYSIWYG editing.
 
-* Hosting: AWS CloudFront, S3, Lambda.   It's mostly a static site, for super cheap hosting.
+* Hosting: AWS CloudFront, S3
 
 * AWS .NET SDK for [S3 syncing](source/SyncS3/Program.cs)
 

@@ -5,6 +5,23 @@ BUILD_DIR = /tmp/build
 PROD_DIR = /tmp/build.prod
 DRY_RUN = --dry-run
 
+nullstring :=
+space := $(nullstring) $(nullstring)
+
+LAMBDA_TEST_VARS  = LAMBDA_NET_SERIALIZER_DEBUG=true
+LAMBDA_TEST_VARS += PPOM_SNS_ARN=arn:aws:sns:us-east-1:757437486362:unverified-ipn-test
+LAMBDA_TEST_VARS += PPOM_VERIFIED_SQS=https://sqs.us-east-1.amazonaws.com/757437486362/verified-ipn-test
+LAMBDA_TEST_VARS += PPOM_ERROR_SQS=https://sqs.us-east-1.amazonaws.com/757437486362/errors-ipn-test
+LAMBDA_TEST_VARS += PPOM_VERIFY_URL=https://www.sandbox.paypal.com/cgi-bin/webscr
+LAMBDA_TEST_VARS := $(subst $(space),;,$(LAMBDA_TEST_VARS))
+
+LAMBDA_PROD_VARS  = LAMBDA_NET_SERIALIZER_DEBUG=true
+LAMBDA_PROD_VARS += PPOM_SNS_ARN=arn:aws:sns:us-east-1:757437486362:unverified-ipn-prod
+LAMBDA_PROD_VARS += PPOM_VERIFIED_SQS=https://sqs.us-east-1.amazonaws.com/757437486362/verified-ipn-prod
+LAMBDA_PROD_VARS += PPOM_ERROR_SQS=https://sqs.us-east-1.amazonaws.com/757437486362/errors-ipn-prod
+LAMBDA_PROD_VARS += PPOM_VERIFY_URL=https://www.paypal.com/cgi-bin/webscr
+LAMBDA_PROD_VARS := $(subst $(space),;,$(LAMBDA_PROD_VARS))
+
 
 help:
 	@echo "clean:       remove build dir"
@@ -37,6 +54,29 @@ build:
 	find $(PROD_DIR) -name '*.js' -print0 \
 	    | xargs -0 perl -i -pe 's/karl.pickett-facilitator\@gmail.com/patternedpomegranate\@gmail.com/'
 	! grep -rI cloudfront.net $(PROD_DIR)
+
+
+lambda-test: lambda-test-r lambda-test-v
+lambda-test-r:
+	(cd source/PaypalReceiverLambda && dotnet lambda deploy-function PaypalReceiverLambdaTest \
+	    --environment-variables "$(LAMBDA_TEST_VARS)" \
+	    --function-role lambdatest)
+lambda-test-v:
+	(cd source/PaypalVerifierLambda && dotnet lambda deploy-function PaypalVerifierLambdaTest \
+	    --environment-variables "$(LAMBDA_TEST_VARS)" \
+	    --function-role lambdatest)
+
+
+lambda-prod: lambda-prod-r lambda-prod-v
+lambda-prod-r:
+	(cd source/PaypalReceiverLambda && dotnet lambda deploy-function PaypalReceiverLambdaProd \
+	    --environment-variables "$(LAMBDA_PROD_VARS)" \
+	    --function-role lambdatest)
+lambda-prod-v:
+	(cd source/PaypalVerifierLambda && dotnet lambda deploy-function PaypalVerifierLambdaProd \
+	    --environment-variables "$(LAMBDA_PROD_VARS)" \
+	    --function-role lambdatest)
+
 
 clean:
 	rm -rf $(BUILD_DIR) $(PROD_DIR)

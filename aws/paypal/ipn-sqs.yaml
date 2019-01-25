@@ -1,0 +1,165 @@
+# Paypal IPN listener, based on example paypal code but extended to use C# lambdas
+
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: "Cloud Formation Stack for IPN interfacing"
+
+Parameters:
+  InternalNotificationName:
+    Description: SNS Internal Queue 
+    Type: String
+  DeliveryQueueName:
+    Description: SQS Delivery Queue
+    Type: String
+  TimeoutQueueName:
+    Type: String
+  ErrorQueueName:
+    Type: String
+  LambdaReceiverARN:
+    Type: String
+  LambdaVerifierARN:
+    Type: String
+  VerifyURL:
+    Description: PaypalMessageVerificationURL
+    Type: String
+    
+Outputs:
+  InternalQueueArn:
+    Description: The Arn of the internal SNS Queue
+    Value: !Ref InternalNotification
+  DeliveryQueueArn:
+    Description: The Arn of the SQS Delivery Queue
+    Value: !GetAtt DeliveryQueue.Arn
+  ReceiverURL:
+    Description: The URL to be confgured into Paypal
+    Value: !Sub https://${ReceiverApi}.execute-api.us-east-1.amazonaws.com/LATEST
+   
+Resources:
+
+  DeliveryQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Ref DeliveryQueueName
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt TimeoutQueue.Arn
+        maxReceiveCount: 5
+
+  ErrorQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Ref ErrorQueueName 
+      MessageRetentionPeriod: 1209600
+
+  TimeoutQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Ref TimeoutQueueName 
+      MessageRetentionPeriod: 1209600
+      
+  InternalNotification:
+    Type: "AWS::SNS::Topic"
+    Properties: 
+      DisplayName: !Ref InternalNotificationName
+      Subscription:
+      - Endpoint: !Ref LambdaVerifierARN
+        Protocol: lambda
+      TopicName: !Ref InternalNotificationName
+
+  NotificationInvokePolicy:
+    Type: "AWS::Lambda::Permission"
+    Properties: 
+      Action: "lambda:InvokeFunction"
+      Principal: "sns.amazonaws.com"
+      FunctionName: !Ref LambdaVerifierARN
+      SourceArn: !Ref InternalNotification
+
+  # IAM Roles
+
+  APIGatewayReceiverRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+            Action: "sts:AssumeRole"
+      Policies:
+        -
+          PolicyName: APIGatewayReceiverRole
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Action:
+              - lambda:InvokeFunction
+              Resource: "*"
+            - Effect: Allow
+              Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:DescribeLogGroups
+              - logs:DescribeLogStreams
+              - logs:PutLogEvents
+              - logs:GetLogEvents
+              - logs:FilterLogEvents
+              Resource: "*"
+
+      
+  ## API Gateway
+
+  ApiGatewayAccount:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn:
+        !GetAtt APIGatewayReceiverRole.Arn
+
+  ReceiverApi:
+    Type: "AWS::ApiGateway::RestApi"
+    Properties:
+      Name: "receiver"
+      Description: "API to receive updates"
+      FailOnWarnings: true
+
+  ReceiveMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ReceiverApi
+      ResourceId: !GetAtt ReceiverApi.RootResourceId
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Credentials: !GetAtt APIGatewayReceiverRole.Arn
+        Uri: !Sub arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${LambdaReceiverARN}/invocations
+
+# Stages
+
+  ReceiverApiStage:
+    DependsOn:
+    - ReceiverApi
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      DeploymentId:
+        Ref: ApiDeployment
+      MethodSettings:
+      - DataTraceEnabled: true
+        HttpMethod: "*"
+        LoggingLevel: INFO
+        ResourcePath: "/*"
+        ThrottlingBurstLimit : 2  
+        ThrottlingRateLimit : 1
+      RestApiId:
+        Ref: ReceiverApi
+      StageName: LATEST
+
+  ApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+    - ReceiveMethod
+    Properties:
+      RestApiId:
+        Ref: ReceiverApi
+      StageName: Dummmy  # Note: "Dummy" is a dummy stage and not a mistake.  Required to ease cfn - see aws docs
