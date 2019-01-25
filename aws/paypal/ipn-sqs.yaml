@@ -4,6 +4,10 @@
 # Also, the APIGateway custom domain name / ACM Cert is manually created.
 # But that is only done once, and we use different base paths for test/prod
 # 
+# Note that if you change some of the API gateway config, your best bet
+# is just to delete and recreate the stack to make it take effect.
+# API Gateway sucks.
+# 
 
 AWSTemplateFormatVersion: "2010-09-09"
 
@@ -130,11 +134,18 @@ Resources:
       Description: "API to receive updates"
       FailOnWarnings: true
 
+  ReceiveResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ReceiverApi
+      ParentId: !GetAtt ReceiverApi.RootResourceId
+      PathPart: "ipn"
+
   ReceiveMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !Ref ReceiverApi
-      ResourceId: !GetAtt ReceiverApi.RootResourceId
+      ResourceId: !Ref ReceiveResource
       HttpMethod: POST
       AuthorizationType: NONE
       Integration:
@@ -167,7 +178,7 @@ Resources:
     - ReceiveMethod
     Properties:
       RestApiId: !Ref ReceiverApi
-      StageName: Dummmy  # Note: "Dummy" is a dummy stage and not a mistake.  Required to ease cfn - see aws docs
+      StageName: Dummy  # Just more garbage needed for apigateway garbage.  Still doesn't redeploy correctly either.
 
   APICustomDomainMapping:
     Type: AWS::ApiGateway::BasePathMapping
