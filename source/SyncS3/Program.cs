@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
+using System.Threading.Tasks;
 
 using Amazon.S3;
 using Amazon.S3.Model;
@@ -82,7 +82,7 @@ namespace SyncS3
         // We don't even have to gzip compress because cloudfront does it
         // automatically for the correct content types (e.g. html, css, js).
         // 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             var rootPath = args[0];
             var bucketName = args[1];
@@ -102,7 +102,7 @@ namespace SyncS3
             var client = new AmazonS3Client();
 
             var localFiles = ListLocalDirectory(rootPath);
-            var remoteFiles = ScanBucket(client, bucketName);
+            var remoteFiles = await ScanBucket(client, bucketName);
 
 
             // Step 1: Upload new files
@@ -110,7 +110,7 @@ namespace SyncS3
                 if (!remoteFiles.ContainsKey(localFile.RelativePath)) {
                     Console.WriteLine("New file needs upload: {0}", localFile.RelativePath);
                     if (!dry_run) {
-                        upload_file(client, localFile, bucketName);
+                        await upload_file(client, localFile, bucketName);
                     }
                 }
             }
@@ -123,7 +123,7 @@ namespace SyncS3
                     if (localFile.MD5Checksum.ToLower() != remoteFile.ETag.ToLower().Trim('"')) {
                         Console.WriteLine("Key needs update: {0}", key);
                         if (!dry_run) {
-                            upload_file(client, localFile, bucketName);
+                            await upload_file(client, localFile, bucketName);
                         }
                     } else {
                         Console.WriteLine("Key unchanged: {0}", key);
@@ -138,13 +138,13 @@ namespace SyncS3
                 if (localFile == null) {
                     Console.WriteLine("Key needs delete: {0}", key);
                     if (!dry_run) {
-                        delete_file(client, key, bucketName);
+                        await delete_file(client, key, bucketName);
                     }
                 }
             }
         }
 
-        static void upload_file(AmazonS3Client client, LocalFileInfo localFile, String bucketName)
+        static async Task upload_file(AmazonS3Client client, LocalFileInfo localFile, String bucketName)
         {
             var putRequest = new PutObjectRequest {
                 BucketName = bucketName,
@@ -154,17 +154,17 @@ namespace SyncS3
             };
             putRequest.Headers.CacheControl = localFile.CacheControl;
 
-            PutObjectResponse response = client.PutObjectAsync(putRequest).Result;
+            PutObjectResponse response = await client.PutObjectAsync(putRequest);
         }
 
-        static void delete_file(AmazonS3Client client, String key, String bucketName)
+        static async Task delete_file(AmazonS3Client client, String key, String bucketName)
         {
              var deleteObjectRequest = new DeleteObjectRequest {
                     BucketName = bucketName,
                     Key = key
                 };
 
-            DeleteObjectResponse response = client.DeleteObjectAsync(deleteObjectRequest).Result;
+            DeleteObjectResponse response = await client.DeleteObjectAsync(deleteObjectRequest);
         }
 
         // Scan all files in a local directory.
@@ -182,7 +182,8 @@ namespace SyncS3
 
         // Scan all objects in the S3 bucket.
         // Return: key (string) -> object info
-        static Dictionary<String, S3Object> ScanBucket(AmazonS3Client client, string bucketName)
+        static async Task<Dictionary<String, S3Object>> ScanBucket(
+            AmazonS3Client client, string bucketName)
         {
             ListObjectsV2Request request = new ListObjectsV2Request {
                 BucketName = bucketName,
@@ -192,7 +193,7 @@ namespace SyncS3
             var ret = new Dictionary<String, S3Object>();
 
             do {
-                response = client.ListObjectsV2Async(request).Result;
+                response = await client.ListObjectsV2Async(request);
 
                 foreach (S3Object entry in response.S3Objects) {
                     Trace.Assert(!entry.Key.StartsWith("/"));
