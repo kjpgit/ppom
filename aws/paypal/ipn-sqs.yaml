@@ -1,4 +1,9 @@
-# Paypal IPN listener, based on example paypal code but extended to use C# lambdas
+# AWS resources / infrastructure for Paypal IPN listener.
+# Contains everything but the lambda function code.
+# 
+# Also, the APIGateway custom domain name / ACM Cert is manually created.
+# But that is only done once, and we use different base paths for test/prod
+# 
 
 AWSTemplateFormatVersion: "2010-09-09"
 
@@ -22,6 +27,12 @@ Parameters:
   VerifyURL:
     Description: PaypalMessageVerificationURL
     Type: String
+  APIDomainName:
+    Type: String
+    Default: api.patternedpom.com
+  APIBasePath:
+    Type: String
+   
     
 Outputs:
   InternalQueueArn:
@@ -30,9 +41,6 @@ Outputs:
   DeliveryQueueArn:
     Description: The Arn of the SQS Delivery Queue
     Value: !GetAtt DeliveryQueue.Arn
-  ReceiverURL:
-    Description: The URL to be confgured into Paypal
-    Value: !Sub https://${ReceiverApi}.execute-api.us-east-1.amazonaws.com/LATEST
    
 Resources:
 
@@ -142,8 +150,7 @@ Resources:
     - ReceiverApi
     Type: AWS::ApiGateway::Stage
     Properties:
-      DeploymentId:
-        Ref: ApiDeployment
+      DeploymentId: !Ref ApiDeployment
       MethodSettings:
       - DataTraceEnabled: true
         HttpMethod: "*"
@@ -151,8 +158,7 @@ Resources:
         ResourcePath: "/*"
         ThrottlingBurstLimit : 2  
         ThrottlingRateLimit : 1
-      RestApiId:
-        Ref: ReceiverApi
+      RestApiId: !Ref ReceiverApi
       StageName: LATEST
 
   ApiDeployment:
@@ -160,6 +166,13 @@ Resources:
     DependsOn:
     - ReceiveMethod
     Properties:
-      RestApiId:
-        Ref: ReceiverApi
+      RestApiId: !Ref ReceiverApi
       StageName: Dummmy  # Note: "Dummy" is a dummy stage and not a mistake.  Required to ease cfn - see aws docs
+
+  APICustomDomainMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      BasePath: !Ref APIBasePath
+      DomainName: !Ref APIDomainName
+      RestApiId: !Ref ReceiverApi
+      Stage: !Ref ReceiverApiStage
