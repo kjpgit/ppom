@@ -1,6 +1,6 @@
 ## Overview
 
-Source code for https://www.patternedpom.com (my wife's ecommerce site)
+Source code for https://www.patternedpom.com (my wife's ecommerce site and blog)
 
 
 ## Tech Stack
