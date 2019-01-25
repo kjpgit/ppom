@@ -8,9 +8,9 @@ but changed to use C# instead of ancient python 2.7, and proper POST of the mess
 
 ## Overview
 
-* Receiver: API Gateway -> [PaypalReceiverLambda](../../source/PaypalReceiverLambda/) -> SNS Topic
+* Receiver: API Gateway -> [PaypalReceiverLambda](../../source/PaypalReceiverLambda/Function.cs) -> SNS Topic
 
-* Verifier: SNS Topic -> [PaypalVerifierLambda](../../source/PaypalVerifierLambda/) -> SQS Topic
+* Verifier: SNS Topic -> [PaypalVerifierLambda](../../source/PaypalVerifierLambda/Function.cs) -> SQS Topic
 
 The reason Paypal recommends two queues is clever: it is needed to prevent lost messages.
 Imagine the verifier lambda dies right after it POSTs the verify message to paypal, but before it publishes to SQS.
