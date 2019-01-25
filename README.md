@@ -13,7 +13,7 @@ Source code for https://www.patternedpom.com (my wife's ecommerce site and blog)
 
 * Shopping Cart: Vanilla.js, LocalStorage 
 
-* Payment Processing: Paypal IPN, Lambda, SNS, SQS
+* Digital Purchases: [Paypal IPN, AWS Lambda, SNS, SQS](aws/paypal/)
 
 * Google Spreadsheets .NET SDK for [fetching product listing data](source/GoogleSpreadsheetData/GoogleSheets.cs)
 
