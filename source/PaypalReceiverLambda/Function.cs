@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,20 +15,22 @@ namespace PaypalReceiverLambda
 {
     public class Function
     {
-        public APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
+        public async Task<APIGatewayProxyResponse> FunctionHandler(
+            APIGatewayProxyRequest input, ILambdaContext context)
         {
-            Console.WriteLine($"testing fuck");
-            Console.WriteLine($"body: {input.Body}");
-
             var snsArn = Environment.GetEnvironmentVariable("PPOM_SNS_ARN");
+            Trace.Assert(snsArn != null);
 
             var client = new AmazonSimpleNotificationServiceClient();
-            var response = client.PublishAsync(snsArn, input.Body).Result;
+            var response = await client.PublishAsync(snsArn, input.Body);
 
-            return new APIGatewayProxyResponse {
-                Body = $"Sent message to {snsArn} {response.HttpStatusCode}",
-                StatusCode = 200,
-            };
+            var ret = new APIGatewayProxyResponse();
+            ret.StatusCode = 200;
+            ret.Body = "";
+            ret.Headers = new Dictionary<string, string>();
+            ret.Headers["x-ppom-sns-queue"] = snsArn;
+
+            return ret;
         }
     }
 }
