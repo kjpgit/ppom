@@ -22,3 +22,6 @@ Note that you can still get *duplicate* messages in SQS, e.g. if the verifier di
 But that's ok, and could be prevented by writing to DynamoDB when you read the SQS queue.  
 It's not necessary for this site since it's just for digital purchase emails, and a rare duplicate email is fine.
 (Also, Amazon SES *sadly* doesn't support idempotent email sending based on a unique message ID anyway!)
+
+The API Gateway custom domain support is nice.  We can delete the cloudformation stacks
+completely, and get the same domain/path after recreating them.
