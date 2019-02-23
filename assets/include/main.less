@@ -1,6 +1,7 @@
 /* (C) Karl Pickett */
 
 @accent_color: #ea118c;  // pink
+@accent_color2: #81d8d0;  // teal
 
 @font_family_normal_text: 'Verdana', sans-serif;
 @font_family_reading_text: 'Merriweather', Georgia, serif;
@@ -125,21 +126,28 @@ blockquote {
 
 
 // Form Buttons
-button, input[type=button], input[type=submit], input[type=reset] {
-    color: #eee;
-    background-color: @accent_color;
+button, input[type=button], input[type=submit], input[type=reset], a.kelly_click {
+    color: #fff;
+    background-color: @accent_color2;
+    border: 1px solid darken(@accent_color2, 25%);
+    border-radius: 5px;
 
     font-size: 14px;
     font-family: @accent_font_sans;
     text-decoration: none;
     padding: 6px 12px;
-    border: 1px solid darken(@accent_color, 25%);
-    border-radius: 5px;
 
     &:focus, &:hover {
-        background-color: @accent_color + #222;
+        background-color: @accent_color2 - #111;
     }
 }
+
+a.kelly_click {
+    font-size: 16px;
+    padding: 1em 2em;
+}
+
+
 .viewCart {
     color: #eee;
     background-color: #444;
